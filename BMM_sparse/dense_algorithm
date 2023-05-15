@@ -1,0 +1,18 @@
+#Given a pair of n by n boolean matricies which are to be multiplied
+#CONDITION FOR SPEED (hard to test)
+# If every output of the multiplication has at least log(n^2/p) witnesses
+# Then this algorithm is correct with probability 1-p .
+Multiply(A,B) :
+  #IF SPARSE DO SOMETHING OTHER CORRECT ALGORITHM
+  parfor column c in A  row r in B
+    flip coin :
+      if tails :
+        Discard c from A and r from B
+  Multiply(A,B)
+#Clearly this decreases the problem size for dense matricies, but testing the witness criteria is hard
+#If C = AB and C_ij has log(n^2/p) witnesses, And since each witness has a 50-50 chance of being thrown out
+#by the algorithm. So the probability that C_ij has all it witnesses thrown out is at most p/n^2. 
+#The probability that any entry of C has all its witnesses thrown out is at most p by a union bound.
+#Thus the C produced by this reduction is the same as the C down by the naive algorithm, 
+#But much less work needs be done in the former case.
+  
