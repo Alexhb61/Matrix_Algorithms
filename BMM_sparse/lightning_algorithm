@@ -1,0 +1,42 @@
+#Not that interesting an algorihtm without a strongly relevant dense case
+#which I don't have.
+#Might already exist in the literature, but I don't know where.
+#Given two n by n boolean matricies. We can do a matrix multiplication in O(W) time.
+# where W is the number of witnesses.
+Multiply(A,B):
+  parfor each column c in A :
+    make a list for column c
+    parfor each element e in column c :
+      if e == 1 :
+        append e's index to the list for c
+  Now we have an array of lists A'
+  parfor each row r in B :
+    make a list for row r
+    parfor each element e in column r :
+      if e == 1 :
+        append e's index to the list for r
+  Now we have an array of list B'
+  Create a n by n matrix C with all 0's
+  #DENSE TEST IF DENSE DO SOMETHING ELSE
+  parfor list in A'
+    a[i] = len(list)
+  parfor list in B'
+    b[i] = len(list)
+  sum over i = a[i]*b[i]
+  if sum > threshold :#DO DENSE ALGORITHM
+  parfor each column c of A' and row r of B'
+    parfor each element i of c's list :
+      parfor each element j of r's list :
+        C[i][j] = 1
+  return C
+#Correctness:
+#This algorithm essentially converts both matricies into a two different sparse 
+# representations nd then multiplies them. One way to think about this algorithm
+# is that it uses the fact that matrix mulitplication is the sum of outer products &
+# if all the outer products are sparse, then the problem is easy
+#Work: O(n^2 + W)
+# iterating through each matrix takes quadratic work if list appending is O(1)
+# the test is cheap, if len is O(n) operation.
+# O(W) store operations are done in the last section, because each witness shows up once 
+# as an i,j pair.
+# MAYBE PARALLELISM HERE ISNT CLEAR ...
