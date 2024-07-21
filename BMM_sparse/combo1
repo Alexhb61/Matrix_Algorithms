@@ -3,10 +3,14 @@ matrix BMM(matrix A, matrix B) : # Runs with error probabilty 1/n
   let n be a power of 2 and the dimension of A,B
   let C be a n by n zeroed matrix
   for i in 1 to 3lg(n) : 
-    C = C logical_or eBMM(A,B 1/2)
+    C = C entry_wise_logical_or eBMM(A,B n^2/2)
   return C
 matrix eBMM( matrix A, matrix B, float acceptable_error_count) :
   let n be a power of 2 and the dimension of A,B
+  if n < COMPILER_CONSTANT_FOR_OPTIMIZAITON:
+    return witness_listing_BMM(A,B)
+  if acceptable_error_count < n^2/4 : #LOL THIS IS WEIRD SELF REDUCTION
+    return eBMM(A,B,2*acceptable_error_count) entry_wise_logical_or eBMM(A,B,2*acceptable_error_count)
   let s be a random list of n pairs of integers from 1 to n
   let w be an array of zeros of length n +1 (goes from 0 to n)
   for (i,j) in s :
@@ -17,7 +21,7 @@ matrix eBMM( matrix A, matrix B, float acceptable_error_count) :
     error_estimate += n * w[i] * 2^(-i) 
   if error_estimate < acceptable_error_count/5 :
     return dense_divide_BMM(A,B,acceptable_error_count*4/5) :
-  else
+  else:
     return witness_listing_BMM(A,B)
 matrix dense_divide_BMM(matrix A, matrix B, float acceptable_error_count)
   let n be a power of 2 and the dimension of A,B
@@ -43,3 +47,7 @@ matrix witness_listing_BMM( matrix A, matrix B)
         set entry v,w to 1 in C
   return C
 # END PSEUOCODE
+#NOTE 1/5 is arbitrary, and causes a double roughly every 3 times
+#2/9 could also work and would cause a double roughly every 6 times
+# n/(4n+1) works and causes a doubling roughly O(n) times.
+# The two numbers relating to doubling are in line 22 and 23  1/(4n+1) and (4n)/(4n+1) 
