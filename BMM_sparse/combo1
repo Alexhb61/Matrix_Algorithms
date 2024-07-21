@@ -1,5 +1,11 @@
 #Pseudocode
-matrix BMM( matrix A, matrix B, float acceptable_error_count) :
+matrix BMM(matrix A, matrix B) : # Runs with error probabilty 1/n
+  let n be a power of 2 and the dimension of A,B
+  let C be a n by n zeroed matrix
+  for i in 1 to 3lg(n) : 
+    C = C logical_or eBMM(A,B 1/2)
+  return C
+matrix eBMM( matrix A, matrix B, float acceptable_error_count) :
   let n be a power of 2 and the dimension of A,B
   let s be a random list of n pairs of integers from 1 to n
   let w be an array of zeros of length n +1 (goes from 0 to n)
@@ -8,24 +14,26 @@ matrix BMM( matrix A, matrix B, float acceptable_error_count) :
     w[witness_count] += 1
   error_estimate = 0
   for i in 1 to n :
-    error_estimate += w[i] * 2^(-i)
+    error_estimate += n * w[i] * 2^(-i) 
   if error_estimate < acceptable_error_count/5 :
     return dense_divide_BMM(A,B,acceptable_error_count*4/5) :
   else
     return witness_listing_BMM(A,B)
 matrix dense_divide_BMM(matrix A, matrix B, float acceptable_error_count)
+  let n be a power of 2 and the dimension of A,B
   let t be a random list of distinct integers between 1 and n of length n/2
   let A_1 be the first n/2 rows of A with columns corresponding to t
   let A_2 be the last n/2 rows of A with columns corresponding to t
   let B_1 be the first n/2 columns of B with rows corresponding to t
   let B_2 be the last n/2 columns of B with rows corresponding to t
-  C_11 = BMM( A_1, B_1, acceptable_error_count/4)
-  C_12 = BMM( A_1, B_2, acceptable_error_count/4)
-  C_21 = BMM( A_2, B_1, acceptable_error_count/4)
-  C_22 = BMM( A_2, B_2, acceptable_error_count/4)
+  C_11 = eBMM( A_1, B_1, acceptable_error_count/4)
+  C_12 = eBMM( A_1, B_2, acceptable_error_count/4)
+  C_21 = eBMM( A_2, B_1, acceptable_error_count/4)
+  C_22 = eBMM( A_2, B_2, acceptable_error_count/4)
   return [C_11, C_12;
           C_21, C_22]
 matrix witness_listing_BMM( matrix A, matrix B) 
+  let n be a power of 2 and the dimension of A,B
   Let A be a directed adjacency matrix, and construct its adjacency list A'
   Let B be a directed adjacency matrix, and construct its adjacency list B'
   Let C be an zeroed n by n matrix
