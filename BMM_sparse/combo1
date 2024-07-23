@@ -1,3 +1,7 @@
+# Context
+# This Algorithm implied by the pseudocode function BMM is trying to solve the problem of boolean matrix multiplication.
+This is standard matrix multiplication but with boolean or in place of plus and boolean and in place of multiplication.
+The potential applications of this algorithm include a bunch of graph theory things, and string cfg parsing.
 #Pseudocode
 matrix BMM(matrix A, matrix B) : # Runs with error probabilty 1/n
   let n be a power of 2 and the dimension of A,B
