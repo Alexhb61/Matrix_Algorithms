@@ -5,43 +5,50 @@ The potential applications of this algorithm include a bunch of graph theory thi
 #Pseudocode
 let const COMPILER_CONSTANT_FOR_OPTIMIZATION = 8
 let const ERROR_RATE_FOR_OPTIMIZATION = 1/5
-matrix BMM(matrix A, matrix B) : # Runs with error probabilty 1/n
+let const ERROR_PROBABILITY_FOR_CHOICE = 1/1000000
+matrix BMM(matrix A, matrix B) : # Runs with error probabilty p
   let n be a power of 2 and the dimension of A,B
   let C be a n by n zeroed matrix
-  for i in 1 to 3lg(n) : 
+  for i in 1 to 2lg(n) + lg(1/ERROR_PROBABILITY_FOR_CHOICE) : 
     C = C entry_wise_logical_or eBMM(A,B 1/2)
   return C
-matrix eBMM( matrix A, matrix B, float error_probability) :
-  let n be a power of 2 and the dimension of A,B
+matrix eBMM( matrix A, matrix B, float false_negative_rate) :
+  let n be a power of 2 and the dimension of A,B aka the number of rows or columns of A or B.
   if n < COMPILER_CONSTANT_FOR_OPTIMIZAITON:
     return witness_listing_BMM(A,B)
-  if error_proability < 1/4 : # WEIRD SELF REDUCTION
-    return eBMM(A,B,sqrt(error_probability)) entry_wise_logical_or eBMM(A,B,sqrt(error_probability))
+  if false_negative_rate < 1/4 : # WEIRD SELF REDUCTION
+    return eBMM(A,B,sqrt(false_negative_rate)) entry_wise_logical_or eBMM(A,B,sqrt(false_negative_rate))
   # NOW WE ESTIMATE THE WITNESS DISTRIBUTION
-  let s be a random list of n pairs of integers from 1 to n
+  let s be a random list of n*ln(n^2/ERROR_PROBABILITY_FOR_CHOICE) pairs of integers between 1 to n
   let w be an array of zeros of length n +1 (goes from 0 to n)
   for (i,j) in s :
     witness_count = (row i of A) dot product (column j of B)
-    w[witness_count] += 1
-  # THEN USE THAT TO COMPUTE THE error estimate
+    w[witness_count] += n^2/length(s)
+  #Add a safety factor To our distribution estimate
+  for i in 0 to n :
+    w[i] += n^2/length(s)
+  # then we use estimate of the witness distribution to compute the error estimate
   error_estimate = 0
   for i in 1 to n :
-    error_estimate += n * w[i] * 2^(-i) 
-  if error_estimate < n^2 *error_proability* ERROR_RATE_FOR_OPTIMIZATION :
-    return dense_divide_BMM(A,B,error_probability * (1- ERROR_RATE_FOR_OPTIMIZATION) ) :
+    # let p_i be the probability of zero successes when drawing (without replacement) i times from a population of size n and success rate n/2
+    # let p_i = hypergeometric_distribution(k= 0,n_distribution= i,N= n,K= n/2)
+    p_i = binomial_coefficient( n/2,i) / binomial_coefficient(n,i) 
+    error_estimate += w[i] *p_i
+  if error_estimate < n^2 *false_negative_rate* ERROR_RATE_FOR_OPTIMIZATION :
+    return dense_divide_BMM(A,B,false_negative_rate * (1- ERROR_RATE_FOR_OPTIMIZATION) ) :
   else:
     return witness_listing_BMM(A,B)
-matrix dense_divide_BMM(matrix A, matrix B, float error_rate_after_dropping)
+matrix dense_divide_BMM(matrix A, matrix B, float fnr_after_dropping)
   let n be a power of 2 and the dimension of A,B
   let t be a random list of distinct integers between 1 and n of length n/2
   let A_1 be the first n/2 rows of A with columns corresponding to t
   let A_2 be the last n/2 rows of A with columns corresponding to t
   let B_1 be the first n/2 columns of B with rows corresponding to t
   let B_2 be the last n/2 columns of B with rows corresponding to t
-  C_11 = eBMM( A_1, B_1, error_rate_after_dropping)
-  C_12 = eBMM( A_1, B_2, error_rate_after_dropping)
-  C_21 = eBMM( A_2, B_1, error_rate_after_dropping)
-  C_22 = eBMM( A_2, B_2, error_rate_after_dropping)
+  C_11 = eBMM( A_1, B_1, fnr_after_dropping)
+  C_12 = eBMM( A_1, B_2, fnr_after_dropping)
+  C_21 = eBMM( A_2, B_1, fnr_after_dropping)
+  C_22 = eBMM( A_2, B_2, fnr_after_dropping)
   return [C_11, C_12;
           C_21, C_22]
 matrix witness_listing_BMM( matrix A, matrix B) 
