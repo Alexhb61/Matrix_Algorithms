@@ -28,3 +28,16 @@ Which by the master theorem for divide and conquer algorithms is quadratic work.
 Note you'd have to implement a custom matrix storage format to guarantee quadratic work and not get the extra log(n) work factor.
 Note Higher branching factors have slower algorithms, but more entries.
 ## depth 6 qTC circuits for iterated super Triangular Matrix multiplication 
+#### depth 6 TC circuits for 2 by 2 triangular matrix mulitplication.
+Let ```A_i = [a_i b_i;0 c_i]``` be then n matricies we want to multiply.
+Let ```Product(i = 1 to n)(A_i) = [Product(i = 1 to n)(a_i) Sum(j = 1 to n)((Product(i = 1 to j-1)(a_j))b_j(Product(i = j+1 to n)(c_i))); 0 Product(i = 1 to n)(a_i) ]```
+This result is similar to the multiplication of 2 by 2 stochastic matricies by (insert citation here).
+The depth claim is a result of depth 4 circuits for iterated multiplication, and depth 2 circuit for iterated addition. (CITATION NEEDED)
+If we let a_i itself be a triangular matrix, b_i be a vector, and c_i be a scalar, we can then recursively apply this formula to the matrix multiplication part.
+And will find that multiplication of n k by k triangular matricies can be done in TC depth 6, n^(k+1) work.
+Note that c_i needs to be a scalar in order for the vector and scalar part to distribute over the sum.
+#### If A_i is super triangular the so is a_i, b_i and c_i, Thus the problem recursively shows up inside itself with only a sum on the outside.
+So an n term product of n by n super triangular matricies of fixed branching factor can be computed in depth 6 TC circuits of quasipolynomial n^O(logn) work.
+Note the log(n) term shows up because a k levels of recursion and thus k sums show up when 2^k = n.
+
+I'm considering trying to extend these results...
