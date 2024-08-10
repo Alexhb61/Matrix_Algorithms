@@ -19,16 +19,19 @@ then ```x = A^+b``` which is the least squares solution to ```Ax = b```.
 ## Claim 2 : This Method will converge.
 Because ```A^TA``` is the gram matrix of A, it is positive definite if A is full rank.
 ## Claim 3: Strictly Upper Triangle of Gram matrix multiplication.
+```
 TMM(A,c) when A has >=2 columns:
 Let A = [B D] 
 Compute e = B^T(Dc)
 output = [TMM(B, c) + e; TMM(D,c) ]
 TMM(A,c) when A has 1 column:
 ouput = 0
-Work:  
+```
+####  Work:  
 ``` T(k) <= 2*T(k/2) + k * n```
-Then: O((n^2)log(n))
+Then: ``` O((n^2)log(n))```
 ## Claim 4: Back Substitution of a Lower Triangle of a Gram matrix.
+```
 IT(A,c) when A has >= 2 columns
 Let A = [B D] 
 Let c = [e;f]
@@ -36,6 +39,12 @@ Let x = IT(B,e)
 Let g = f - D^T(B(x))
 let y = IT(D,g)
 output = [x; y]
-Work:
+IT(A,c) when A has 1 column a:
+output =  c/(a.a)
+```
+#### Work:
 ``` T(k) <= 2*T(k/2) + k * n ```
-Then O((n^2)log(n))
+Then ```O((n^2)log(n))```
+## Conclusion : 
+Solving a full rank system of linear equations can be done in O((n^2)log(n)) with a hidden constant depending on the convergence rate of the gauss seidel method.
+
