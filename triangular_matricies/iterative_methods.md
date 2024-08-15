@@ -46,5 +46,9 @@ output =  c/(a.a)
 ``` T(k) <= 2*T(k/2) + k * n ```
 Then ```O((n^2)log(n))```
 ## Conclusion : 
-Solving a full rank system of linear equations can be done in O((n^2)log(n)) with a hidden constant depending on the convergence rate of the gauss seidel method.
+Solving a full rank system of m linear equations in n variables can be done in O(mnlog(n)) with a hidden constant depending on the convergence rate of the gauss seidel method.
+### Future extensions might include:
+1. Analyzing depth
+2. Analyzing IO
+3. Making a modification to iterative methods so it converges for spectral radius <= 1 instead of < 1 .
 
