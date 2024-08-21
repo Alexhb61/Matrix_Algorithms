@@ -17,7 +17,7 @@ Let x be a least squares solution to ```A^TAx = A^Tb```, then ```x = (A^TA)^+A^T
 By the moore-penrose pseudo inverse property "reduction to the hermitian case",
 then ```x = A^+b``` which is the least squares solution to ```Ax = b```.
 ## Claim 2 : This Method will converge.
-Because ```A^TA``` is the gram matrix of A, it is positive definite if A is full rank.
+Because ```A^TA``` is the gram matrix of A, it is positive definite if A is full rank. (otherwise the gram matrix is positive semidefinite.)
 ## Claim 3: Strictly Upper Triangle of Gram matrix multiplication.
 ```
 TMM(A,c) when A has >=2 columns:
@@ -29,7 +29,12 @@ ouput = 0
 ```
 ####  Work:  
 ``` T(k) <= 2*T(k/2) + k * n```
-Then: ``` O((n^2)log(n))```
+Then: ``` O((nm)log(n))``` arithmetic operations.
+#### Depth:
+If two recursive calls are done in parallel with eachother and the two matrix vector multiplications:
+```T(k) <= max( T(k/2), log(n)) <= T(k/2) + log(n) ```
+Then ```O(log(n)log(m))``` depth chain of arithmetic operations.
+
 ## Claim 4: Back Substitution of a Lower Triangle of a Gram matrix.
 ```
 IT(A,c) when A has >= 2 columns
@@ -44,11 +49,62 @@ output =  c/(a.a)
 ```
 #### Work:
 ``` T(k) <= 2*T(k/2) + k * n ```
-Then ```O((n^2)log(n))```
-## Conclusion : 
-Solving a full rank system of m linear equations in n variables can be done in O(mnlog(n)) with a hidden constant depending on the convergence rate of the gauss seidel method.
-### Future extensions might include:
-1. Analyzing depth
-2. Analyzing IO
-3. Making a modification to iterative methods so it converges for spectral radius <= 1 instead of < 1 .
+Then ```O((nm)log(n))```
 
+#### Depth:
+Notice that the two recursive calls are in series and can not be done in parallel. Likewise the two vector matrix multiplications are in this same series.
+```T(k) <= 2T(k/2) + log(n) + log(k) ```
+Then ```O(nlog(m))``` depth chain of arithmetic operations.
+
+## Claim 5: Gauss Siedel can be stabilized.
+Gauss Siedel Method starts with ```x_0 = 0``` (the zero vector)
+and uses the recursive relation ```Lx_(i+1) = b - Ux_i ``` .
+to solve ```Ax=b``` where ```A = L + U ``` and L is lower triangular and U is strictly upper triangular.
+Using the subroutines above:
+```
+GS(A,b,C) 
+x := 0
+for i in 1 to C :
+  x := IT(A,b-TMM(A,x) )
+return x
+```
+where C is some convergence constant.
+The Stabilized version can be written as :
+```SGS(A,b,C)
+return 2*GS(A,b,C) - GS(A,b,2*C) 
+```
+Most iterative methods can be seen as multiplying a vector by a geometric series of matricies.
+The geometric series of matricies ``` I + A + A^2 + A^3 + A^4 ... ``` converges if the spectral radius is less than 1. [citation needs to be found]
+However, when an eigenvalue = 1, this series goes to infinity.
+In contrast, the equation based on the series ```2*s_n - s_2n = 0 ``` if ```s_n = n```. 
+```2*s_n - s_2n -> L``` if the series ```s_n -> L``` converges.
+Thus, the stabilized version converges for the eigenvalue 1 as well.
+I believe when the ```A``` in ```Ax=b``` is positive semidefinite the eigenvalues of the iteration matix are real and less than one. [citation needs to be found]
+Thus, Gauss siedel can be stabilized with a constant factor increase in work and depth
+## Claim 6: Inverting a triangular matrix in low depth and reasonable work:
+Inside the claim of inverting a matrix in low depth (NC complexity class) is neat facts about nilpotent matricies. [citation needs to be found]
+Here is the nilpotent matrix fact we will need:
+```(I - N)^(-1) = sum_(i=0 to n ) N^i```  where ```N^0 = I``` 
+Note that N^n = 0 by definition of nilpotent.
+we can use this to invert triangular matricies.
+```T = D(I-N)``` where D is a diagonal matrix, I is the Identity matrix and N is strictly (lower) triangular.
+```N_ij = - T_ij/T_ii``` is the equation we want.
+```
+Invert(T) :
+Let N_1_ij = - T_ij/T_ii and all other entries of N_1 equal zero
+for i = 2 to lg(n) :
+  N_i = N_(i-1) * N_(i-1)
+Let Inv_ii = 1/T_ii and all other entries of Inv equal zero
+Let I be the identity
+for i = 1 to lg(n) :
+  Inv := Inv + N_i*Inv
+return Inv
+```
+This is basically a lower work organization of a previously established result.
+This is done in log(n) matrix multiplications in terms of both depth and work.
+## Claim 7: Pseudoinverse in reasonable work
+later
+## Claim 8: Mixing the two results
+later
+## Conclusion : 
+Solving a system of m linear equations in n variables can be done in O(mnlog(n)) with a hidden constant depending on the convergence rate of the gauss seidel method.
