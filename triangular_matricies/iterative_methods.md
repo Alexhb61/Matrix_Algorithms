@@ -120,7 +120,7 @@ Return PInv
 ```
 ##  Another Idea: Mixing the two results
 Another combination of the above results is to switch from using the back substitution implied in claim 4 to the inversion algorithm in claim 6.
-This would let the work slide from mnklogn for variable k and the depth be (n/k)logm this could be optimized to the machine.
+This would let the work slide from mnklogn for variable k and the depth be (n/k)logm*polylogk this could be optimized to the machine.
 Optimizing it for a machine is out of scope for my current skills.
 ## Conclusion : 
 Solving a system of m linear equations in n variables can be done in O(mnlog(n)) with a hidden constant depending on the convergence rate of the gauss seidel method.
