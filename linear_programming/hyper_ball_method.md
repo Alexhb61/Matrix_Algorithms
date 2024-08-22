@@ -12,6 +12,8 @@ The orcale that the original method uses is a strong separation orcale:
 
 I misunderstood the numerical stabilization of this orcale and discovered the following orcale and algorithm.
 
+#### WARNING: These theoretical algorithms below include a moonshot and so might be more wrong or numerically unstable than other results I have in this repository.
+
 # The Dog Method: A simple HyperBall Method
 
 ### Distance Orcale for convex set K and precision epsilon:
