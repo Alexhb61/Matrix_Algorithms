@@ -81,7 +81,7 @@ In contrast, the equation based on the series ```2*s_n - s_2n = 0 ``` if ```s_n 
 Thus, the stabilized version converges for the eigenvalue 1 as well.
 I believe when the ```A``` in ```Ax=b``` is positive semidefinite the eigenvalues of the iteration matix are real and less than one. [citation needs to be found]
 Thus, Gauss siedel can be stabilized with a constant factor increase in work and depth
-## Claim 6: Inverting a triangular matrix in low depth and reasonable work:
+## Claim 6: Inverting a triangular matrix in low depth and nearly matrix multiplication work:
 Inside the claim of inverting a matrix in low depth (NC complexity class) is neat facts about nilpotent matricies. [citation needs to be found]
 Here is the nilpotent matrix fact we will need:
 ```(I - N)^(-1) = sum_(i=0 to n ) N^i```  where ```N^0 = I``` 
@@ -91,7 +91,7 @@ we can use this to invert triangular matricies.
 ```N_ij = - T_ij/T_ii``` is the equation we want.
 ```
 Invert(T) :
-Let N_1_ij = - T_ij/T_ii and all other entries of N_1 equal zero
+Let N_1_ij = - T_ij/T_ii where i != j and all other entries of N_1 equal zero
 for i = 2 to lg(n) :
   N_i = N_(i-1) * N_(i-1)
 Let Inv_ii = 1/T_ii and all other entries of Inv equal zero
@@ -102,9 +102,25 @@ return Inv
 ```
 This is basically a lower work organization of a previously established result.
 This is done in log(n) matrix multiplications in terms of both depth and work.
-## Claim 7: Pseudoinverse in reasonable work
-later
-## Claim 8: Mixing the two results
-later
+## Claim 7: Pseudoinverse in nearly matrix multiplication work
+This basically writes out the matrix expansion implied by the stabilized gauss siedel method, but
+does it with only lgC multiplications for Convergence constant C.
+```
+PseudoInvert(S) : where S is a square positive semidefinite matrix.
+Let C be a power of two and more than the number iterations needed for the stabilized gauss seidel method to converge.
+Let L + U = S be the lower and strictly upper triangular matrix parts of the matrix S. 
+Iter_1 = Invert(L)*U
+for i = 2 to lg(C) + 1 :
+  Iter_i = Iter_(i-1) * Iter_(i-1)
+PInv = I + Iter_1
+for i = 2 to lg(C) :
+  PInv = PInv + PInv* Iter_i
+PInv = PInv - PInv* Iter_(lg(C)+1) 
+Return PInv
+```
+##  Another Idea: Mixing the two results
+Another combination of the above results is to switch from using the back substitution implied in claim 4 to the inversion algorithm in claim 6.
+This would let the work slide from mnklogn for variable k and the depth be (n/k)logm this could be optimized to the machine.
+Optimizing it for a machine is out of scope for my current skills.
 ## Conclusion : 
 Solving a system of m linear equations in n variables can be done in O(mnlog(n)) with a hidden constant depending on the convergence rate of the gauss seidel method.
