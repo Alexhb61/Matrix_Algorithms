@@ -104,7 +104,7 @@ This is basically a lower work organization of a previously established result.
 This is done in log(n) matrix multiplications in terms of both depth and work.
 ## Claim 7: Pseudoinverse in nearly matrix multiplication work
 This basically writes out the matrix expansion implied by the stabilized gauss siedel method, but
-does it with only lgC multiplications for Convergence constant C.
+does it with only lgC multiplications for Convergence constant C. It requires one call to the triangular inversion procedure.
 ```
 PseudoInvert(S) : where S is a square positive semidefinite matrix.
 Let C be a power of two and more than the number iterations needed for the stabilized gauss seidel method to converge.
