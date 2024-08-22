@@ -146,6 +146,7 @@ Transform it into a circuit C' with O(G) gates of And,Or,Not, Copy where:
 2. OR is a fan-in 2 fan-out 1 gate that computes logical or.
 3. Not is a fan-in 1 fan-out 1 gate that negates the input.
 4. Copy is a fan-in 1 fan-out 2 gate that repeates the input.
+   
 CITATION NEEDED for pre-existing reduction
 We can turn this circuit C' into a sparse linear program P
 with <=5 occurences per column <=3 occurrences per row.
@@ -192,15 +193,15 @@ So the total depth is O(poly(log(G))) depth
 #### Assumption 1: The sum of square of weights of a random maximal independent set is proportional to the sum of square of weights of a random set of equal size. 
 #### Assumption 2: The distance of a point x from a polytope P is bounded above by C times the square root of the sum of square constraint violations.
 #### Where C depends on the internal angles of P and not on its dimension.
-maximum_independent_set(G) >= rows / (1+ degree_of_G)
-degree of G in our case is 5 choose 2 times 3, so 30.
-maximal_independent_set(G) >= maximum_independent_set(G)/entries_per_row 
-by imagining this as a entries_per_row dimensional matching problem.
-thus in our case:
-maximal_independent_set(G) >= rows/93 
-since we are summing the vectors in orthogonal directions
-norm(u) ~ Sqrt(rows/93)*Constraint_violation_RMS
-So the sharpness is < 10 times the angular_constant times the similarity_constant.
+1. maximum_independent_set(G) >= rows / (1+ degree_of_G)
+2. degree of G in our case is 5 choose 2 times 3, so 30.
+3. maximal_independent_set(G) >= maximum_independent_set(G)/entries_per_row 
+4. by imagining this as a entries_per_row dimensional matching problem.
+5. thus in our case:
+6. maximal_independent_set(G) >= rows/93 
+7.since we are summing the vectors in orthogonal directions
+8. norm(u) ~ Sqrt(rows/93)*Constraint_violation_RMS
+9. So the sharpness is < 10 times the angular_constant times the similarity_constant.
 ### Bigger Picture
 Assuming the sharpness is at most some constant C,
 the Pup method for circuits runs in O(PolyLog(G)) depth and O(Glog(G)) work.
