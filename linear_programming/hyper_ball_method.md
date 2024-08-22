@@ -174,20 +174,20 @@ in parallel for the member v of IS :
 return (u/norm(u) , norm(u) )
 ```
 ### work bound:
-O(ms) work in the first loop,
-O(ns^2) work in the second loop,
-O(m + ns^2) work in the maximal independent set call (CITATION NEEDS TO BE FOUND)
-O(ms) work in the second loop.
-O(m) work in the final norm computation.
-for our application this is a O(G) work bound.
+1. O(ms) work in the first loop,
+2. O(ns^2) work in the second loop,
+3. O(m + ns^2) work in the maximal independent set call (CITATION NEEDS TO BE FOUND)
+4. O(ms) work in the second loop.
+5. O(m) work in the final norm computation.
+6. for our application this is a O(G) work bound.
 
 ### depth bound:
-coallescing all the verticies should take O(log(m)) depth
-Coallescing all the edges should take O(log(m)) depth
-The independent set call should take O(poly(log(m))) depth (CITATION NEEDS TO BE FOUND)
-The Coallescing of the vectors into a sum should take O(log(m)) depth
-The norm computation should also take O(log(n)) depth
-So the total depth is O(poly(log(G))) depth
+1. coallescing all the verticies should take O(log(m)) depth
+2. Coallescing all the edges should take O(log(m)) depth
+3. The independent set call should take O(poly(log(m))) depth (CITATION NEEDS TO BE FOUND)
+4. The Coallescing of the vectors into a sum should take O(log(m)) depth
+5. The norm computation should also take O(log(n)) depth
+6. So the total depth is O(poly(log(G))) depth
 
 ### sharpness bound:
 #### Assumption 1: The sum of square of weights of a random maximal independent set is proportional to the sum of square of weights of a random set of equal size. 
