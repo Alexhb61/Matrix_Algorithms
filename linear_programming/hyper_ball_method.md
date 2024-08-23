@@ -1,41 +1,42 @@
 # Simplified ellipsoid Methods: The Hyperball methods
-# Introduction
+## Introduction
 So the ellipsoid method is a famous method for solving linear programs and convex programs in general.
 The method and its variants have two nice properties:
-1. Their runtime is independent of the number of constraints because they access the problem via an orcale.
-2. Their runtime is polynomial in the amount of precision needed.
-The orcale that the original method uses is a strong separation orcale:
+1. Their runtime is independent of the number of constraints because they access the problem via an oracle.
+2. Their runtime is polynomial in the amount of precision needed. They only need a starting ball description, and thepromise of ending ball if non-empty.
+ 
+The oracle that the original method uses is a strong separation oracle:
 
-### Separation Orcale for convex set K:
-#### The Orcale maps x from R^n to (yes,) if x is in the convex set K.
-#### The Orcale maps x from R^n to (no, c) if x is not in the convex set K and cx > cy for all y in K
+### Separation Oracle for convex set K:
+#### The Oracle maps x from R^n to (yes,) if x is in the convex set K.
+#### The Oracle maps x from R^n to (no, c) if x is not in the convex set K and cx > cy for all y in K
 
-I misunderstood the numerical stabilization of this orcale and discovered the following orcale and algorithm.
+I misunderstood the numerical stabilization of this oracle and discovered the following oracle and algorithm.
 
 #### WARNING: These theoretical algorithms below include a moonshot and so might be more wrong or numerically unstable than other results I have in this repository.
 
 # The Dog Method: A simple HyperBall Method
 
-### Distance Orcale for convex set K and precision epsilon:
-#### The Orcale maps x from R^n to (yes,,) if x + error is in the convex set K and the euclidean norm of error is at most epsilon.
-#### The Orcale maps x from R^n to (no, c, d) if x is not in the convex set K and cx > cy + d for all y in K
+### Distance Oracle for convex set K and precision epsilon:
+#### The Oracle maps x from R^n to (yes,,) if x + error is in the convex set K and the euclidean norm of error is at most epsilon.
+#### The Oracle maps x from R^n to (no, c, d) if x is not in the convex set K and cx > cy + d for all y in K
 #### where d >= epsilon for all inputs. c has euclidean norm 1.
 
 ## Dog Method:
-Given a Distance Orcale for convex set K and precision epsilon
+Given a Distance Oracle for convex set K and precision epsilon
 
 We start with a HyperBall of radius R and center c which contains the convex set K.
 
 We will end with either:
-with a Ball that intersects K, Ball(center = x,radius = epsilon) or
+with a Ball that intersects K, Ball(center = x,radius >= epsilon) or
 with the guarantee that K is an empty set.
 ```
-FindBall(DistanceOrcale, center, Radius) :
-Let epsilon be the precision of DistanceOrcale
+FindBall(DistanceOracle, center, Radius) :
+Let epsilon be the precision of DistanceOracle
 Let n be the dimension of the problem
 RadiusSquared = Radius *Radius
 do :
-  (found, halfplane_normal, distance) = DistanceOrcale(c)
+  (found, halfplane_normal, distance) = DistanceOracle(c)
   if not found :
     center = center - halfplane_normal*distance
     RadiusSquared = RadiusSquared - distance^2
@@ -45,57 +46,81 @@ if not found :
 return (true,c,epsilon)
 ```
 Iteration count: (Radius/epsilon)^2
-Work per iteration: O(n + orcale_call)
-depth per iteration: O(log(n)+ orcale_call)
+Work per iteration: O(n + oracle_call)
+depth per iteration: O(log(n)+ oracle_call)
 
-### Bad Distance Orcale for Linear Program:
-We might attempt to create a distance orcale for a linear program very simply:
-If we normalize all the rows ```ax <= b``` 
-Then a violated constraint  ```ax = b+d``` with d >=epsilon.
-gives us (no,a,d) otherwise we return yes.
-Orcale call work: O(nm) arithmetic operations
-Orcale call depth: O(log(nm)) arithmetic operations
-#### ERROR: This orcale does not guarantee a distance epsilon when it returns yes.
-#### One might be able to bound the final distance as less than some problem related constant delta.
+## Distance Oracle from Separation Oracle and Minimum Ball:
+Let SO be a strong separation oracle for a convex set K which if non-empty contains a ball of radius epsilon.
+```
+DistanceOracleFromSeparationOracle(SO, x):
+Let epsilon be the minimum ball radius associated with SO
+(found,cutting_plane_normal) = SO(x)
+if found :
+  return (yes,,)
+return (no,cutting_plane_normal/norm(cutting_plane_normal),epsilon/2)
+```
+Above is an epsilon/2 distance oracle for the convex set K'(all the points epsilon/2 deep in K).
+This convex set K' has a ball of radius epsilon/2.
+If K contains a ball of radius epsilon, the dog method will find a point in K.
+If the dog method finds a point, it is in K.
+
+## Distance Oracle for Linear Program:
+We can create a distance oracle for a linear program very simply:
+```
+DistanceOracleFor(A,x,b) :
+Let epsilon be the given radius of a ball contained in the linear program Ax <= b
+y = Ax - b
+i = argmax over j ( y_j )
+if y_i <= 0
+  return (yes,,)
+let cutting_normal = row i of A
+return (no,cutting_normal/norm(cutting_normal), max(epsilon/2, y_i/norm(cutting_normal)) )
+```
+Again this is similar to the reduction from the separation oracle to distance oracle.
+Oracle call work: O(nm) arithmetic operations
+Oracle call depth: O(log(nm)) arithmetic operations
+
+
 ## Discussion of Dog Method
-This simple method finds a ball in time exponential in precision, but logarithmic depth in dimension, and independent of constraint count.
-However, I don't know how to construct a strong distance orcale. What we actually constructed was a weak distance orcale which is defined as follows:
-### Weak Distance Orcale for convex set K and precision delta, epsilon
-#### The Orcale maps x from R^n to (yes,,) if x + error is in the convex set K and the euclidean norm of error is at most delta.
-#### The Orcale maps x from R^n to (no, c, d) if x is not in the convex set K and cx > cy + d for all y in K
+This simple method finds a ball in time exponential in precision, but low depth in dimension, and independent of constraint count.
+Note that the reductions combine two parts of the ellipsoid method (The oracle and the minimum ball) into the same construct.
+
+### Weak Distance Oracle for convex set K and precision delta, epsilon
+#### The Oracle maps x from R^n to (yes,,) if x + error is in the convex set K and the euclidean norm of error is at most delta.
+#### The Oracle maps x from R^n to (no, c, d) if x is not in the convex set K and cx > cy + d for all y in K
 #### where d >= epsilon for all inputs. c has euclidean norm 1. Note delta > espilon.
-When the Dog Method uses a weak distance orcale, the method needs to return a ball with radius delta upon being found.
+When the Dog Method uses a weak distance oracle, the method needs to return a ball with radius delta upon being found.
 
 # The Doggo Method :
-We extend the method to a dynamic precision and implement a better orcale:
-### Weak Dynamic Distance Orcale for convex set K and dynamic precision d and sharpness s
-#### The orcale maps x,d to (yes,,) if  x is distance at most sd from K
-#### The orcale maps x,d to (no,h,b) if hx > hy + b with b >= d
+We extend the method to a dynamic precision and implement a better oracle:
+### Weak Dynamic Distance Oracle for convex set K and dynamic precision d and sharpness s
+#### The oracle maps x,d to (yes,,) if  x is distance at most sd from K
+#### The oracle maps x,d to (no,h,b) if hx > hy + b with b >= d
 This has the same start and end behaviour of the simple hyperball method.
 
 ## Doggo Method Iteration Procedure
 ```
-FindBall(WeakDynamicDistanceOrcale,c,R)
-let s be the sharpness parameter for WeakDynamicDistanceOrcale
+FindBall(WeakDynamicDistanceOracle,c,R)
+let s be the sharpness parameter for WeakDynamicDistanceOracle
 do:
-  (close, halfplane_normal,distance) = WeakDynamicDistanceOrcale(c,R/(2s))
+  (close, halfplane_normal,distance) = WeakDynamicDistanceOracle(c,R/(2s))
   if close :
     R = R/2
   else :
     c = c - halfplane_normal*distance
     R = sqrt(R^2 - distance^2)
 while R > epsilon
-(found,,) = WeakDynamicDistanceOrcale(c,epsilon)
+(found,,) = WeakDynamicDistanceOracle(c,epsilon)
 return (found,c)
 ```
 Iteration Count: O(s^2log(R/epsilon) )
-work per iteration O(n + orcale call)
-depth per iteration O(log(n)+ orcale call)
+work per iteration O(n + oracle call)
+depth per iteration O(log(n)+ oracle call)
 
-### Weak Dynamic Distance Orcales for sparse linear program
+### Weak Dynamic Distance Oracles for sparse linear program
 Let the program have m constraints over n dimensions with at most s entries per constraint, and at most s constraints which contain a variable.
 ```
-WeakDynamicDistanceOrcale(c,d):
+WeakDynamicDistanceOracle(c,d):
 if d > distance_bound(c) :
   return (yes,,)
 (halfplane_normal,distance) = get_halfplane(c)
@@ -137,7 +162,7 @@ So the sharpness is the sparsity ^2.5 * sqrt(number_of_constraints)
 Work O(m + n)
 Depth O(polylog(n)) via results on maximal independent set.[citation needs to be found]
 ### Conclusion of Doggo Method
-This method for linear programs using this orcale is polynomial in terms of sparsity of linear program, precision, and number of constraints
+This method for linear programs using this oracle is polynomial in terms of sparsity of linear program, precision, and number of constraints
 So it lacks some nice properties of the ellipsoid method
 ## The Pup Method
 This is a potentially universal Paralleization method built ontop of the doggo method.
