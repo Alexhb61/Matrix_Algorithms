@@ -117,7 +117,7 @@ Iteration Count: O(s^2log(R/epsilon) )
 work per iteration O(n + oracle call)
 depth per iteration O(log(n)+ oracle call)
 
-### Weak Dynamic Distance Oracles for sparse linear program
+## Weak Dynamic Distance Oracles for sparse linear program
 Let the program have m constraints over n dimensions with at most s entries per constraint, and at most s constraints which contain a variable.
 ```
 WeakDynamicDistanceOracle(c,d):
@@ -127,7 +127,7 @@ if d > distance_bound(c) :
 return (no, halfplane_normal, distance)
 ```
 
-#### The distance from the convex polytope represented by a linear program can be bounded by:
+## The distance from the convex polytope represented by a linear program can be bounded by:
 ```
 distance_bound(c):
 sum = 0
@@ -139,12 +139,13 @@ return sqrt(sum)*angular_constant
 If the constraints violated have right or acute angles, this computation is a tight upper bound.
 The angular_constant occurs because some constraints have obtuse angle between their normals.
 So we can compute that upper bound on the distance from K in O(n + m) work and log(nm) depth.
-#### The gap can be found:
+## The gap can be found:
 ```
 get_halfplane(c) :
 Construct a graph G with nodes for each violated constraint, and edges for each shared nonzero entry between two constraints.
 Find a random maximal Independent set I on G.
-The unnormalized normal vector for the halfplane is the sum of all the violated constraints, and its distance is the sum of all violations divided by the normalization factor of the vector.
+The unnormalized normal vector for the halfplane is the sum of all the violated constraints,
+ and its distance is the sum of all violations divided by the normalization factor of the vector.
 ```
 This is very much pseudocode, but has a not great shaprness bound.
 The number of entries in the unnormalized vector is <=Ls with L verticies in the independent set.
@@ -161,12 +162,12 @@ since the best bound I have on CV  = O(sqrt(m))
 So the sharpness is the sparsity ^2.5 * sqrt(number_of_constraints)
 Work O(m + n)
 Depth O(polylog(n)) via results on maximal independent set.[citation needs to be found]
-### Conclusion of Doggo Method
+## Conclusion of Doggo Method
 This method for linear programs using this oracle is polynomial in terms of sparsity of linear program, precision, and number of constraints
 So it lacks some nice properties of the ellipsoid method
-## The Pup Method
+# The Pup Method
 This is a potentially universal Paralleization method built ontop of the doggo method.
-### Reductions
+## Reductions
 Start with a circuit we want to parallelize C with G gates of bounded fan-in.
 Transform it into a circuit C' with O(G) gates of And,Or,Not, Copy where:
 1. And is a fan-in 2 fan out 1 gate that computes logical and.
@@ -181,7 +182,7 @@ with <=5 occurences per column <=3 occurrences per row.
 2. w = OR(u,v)   :  u -w <= 0 ; v- w <= 0;  w -u -v <= 0
 3. w = NOT(u)    :  w + u <= 1 ; -w -u <= -1
 4. w,v = copy(u) :  u - w <= 0 ; w - v <= 0 ; v - u <= 0
-### Modifying the Doggo Method   
+## Modifying the Doggo Method   
 We solve this sparse linear program with the same iteration procedure as the Doggo Method, and the same distance bound, but we upgrade and more tightly specify the half plane gap.
 ```
 pup_cut(x) :
@@ -229,9 +230,45 @@ return (u/norm(u) , norm(u) )
 7.since we are summing the vectors in orthogonal directions
 8. norm(u) ~ Sqrt(rows/93)*Constraint_violation_RMS
 9. So the sharpness is < 10 times the angular_constant times the similarity_constant.
-### Bigger Picture
+
+## Bigger Picture
 Assuming the sharpness is at most some constant C,
 the Pup method for circuits runs in O(PolyLog(G)) depth and O(Glog(G)) work.
+#### Because this claim is a moonshot, I hope to have actual running code before seeking publication.
 
-Because this claim is a moonshot, I hope to have actual running code before seeking publication.
+# The Puppy Method
+This method is a modification to the Pup method but with sequential preprocessing.
 
+## Preprocessing step:
+Place all constraints of the linear program into different color classes so that
+any two constraints in the same color class are orthogonal to one another.
+This can be done with the same graph construction as the Pup method, but we color the graph at compile time instead of run time.
+We only need a greedy coloring not an optimal coloring, so this can be done in linear time.
+
+## The Puppy Cut:
+```
+puppy_cut(x):
+Let vector_C = 0 vector separately for each color class
+in parallel for each color class C of G :
+  in parallel for constraint (a,b) in C :
+    vector_C += a*( ax - b)/norm(a)
+best_class = argmax over I (norm(vector_I))
+return (vector_best_class/norm(vector_best_class) , norm(vector_best_class) )
+```
+### work:
+1. O(nC) work to aggregate the vectors.
+2. O(nC) work to compute the norms of all the vectors.
+3. O(n) work to compute the output.
+where C is the amount of color classes (I think its 31.)
+### depth 
+1. O(log(n)) depth to aggregate the vectors
+2. O(log(n) + log(C)) depth to compute the norms and then max the C values, and recompute the norm.
+### Sharpness
+#### Assumption left: The distance of a point x from a polytope P is bounded above by angular_constant times the square root of the sum of square constraint violations.
+1. The Graph from the pup method has maximum degree 31.
+2. One of the color classes must be 1/sqrt(31) portion of the distance bound before the angular_constant.
+3. Because the color classes, square root sum of squares up to that total.
+4. So the sharpness is at most 6 * angular_constant.
+#### The angular constant can be upper bounded by the 2-norm of the pseudoinverse of A.
+## Conclusion
+After O(G) compilation, O(GlogG) work and O(log^2G) depth is possible if the angular constant exists.
