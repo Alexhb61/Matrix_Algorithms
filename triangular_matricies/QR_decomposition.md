@@ -45,6 +45,7 @@ return ([U V] [T S; 0 R]
 This algorithm has numerical stability issues both because its based directly on Gram-Schmit, 
 and also because it might divide by zero.
 ### Claim 1: Up to numerical stability problems, RGSP computes a decomposition:
+We will prove this recursive algorithm to have this output property by induction on k.
 Base case clearly a == [a/r]*[r]
 inductive case:
 ```[U V] * [T S; 0 R] ```
@@ -61,16 +62,19 @@ Thus the algorithm computes a decomposition up to numerical stability problems (
 #### Subclaim A: we only need to show that Q^T and Q are weak inverses of eachother since the other two moore-penrose conditions are trivial for a matrix and its conjugate transpose.
 #### Subclaim B: assuming the algorithm doesn't divide by zero, all we need to show is Q^TQ = Ik
 if Q^TQ = Ik then QQ^TQ = Q and Q^TQQ^T = Q^T
+#### Subclaim C:Q^TQ = Ik for all input sizes k
+We will proved this recusive algorithm to have this output property via a proof by induction on k.
 Base Case: ```[a/r]^T*[a/r] = [1]``` because r is the norm of a.
-Inductive case: ```[U V]^T * [U V]``` multiplyin it out gives
+Inductive case: ```[U V]^T * [U V]``` multiplying it out gives
 ```= [U^TU U^TV ; V^TU V^TV ]``` which by the inductive hypothesis becomes
 ```= [I U^TV; V^TU I ] ``` now all we need to show is the off diagonal squares are zero.
-```U^TV = U^TDR^-1``` by decomopsition property
-```=U^T(C-US)R^-1``` by substitution of definitions
-```=U^T(C-UU^TC)R^-1``` by substitution of definitions
-```=(U^TC - U^TUU^TC)R^-1``` by distribution
-```= (U^TC-U^TC)R^-1``` by inductive hypothesis
+```U^TV = U^TDR^-1``` by decomopsition property on D
+```=U^T(C-US)R^-1``` by substitution of definition of D
+```=U^T(C-UU^TC)R^-1``` by substitution of definition of S
+```=(U^TC - U^TUU^TC)R^-1``` by distribution property of the matrix ring
+```= (U^TC-U^TC)R^-1``` by the inductive hypothesis
 ```= 0``` by identity properties of matrix ring
+Thus, [U V]^T[U V] = Ik as intended.
 ### Claim 3: RGSP returns an upper triangular matrix
 Trivial base case. Inductive cases follow from interaction of upper triangular and block matrix facts.
 ### Claim 4: RGSP runs in depth O(k)
@@ -78,14 +82,81 @@ Its depth recursion relation is
 ```T(k) = 2T(k/2) + O(log(nk) ); T(1) = log(n)```
 when assuming matrix multiplies happen in log depth.
 Applying the master theorem for recursive relations gets the bound.
-Note that while a divide and conquer relation, it is a one part second part algorithm, so it doesn't more parallel.
+Note that while a divide and conquer relation, it does one part THEN a second part, so it doesn't parallelize well.
 ### Claim 5: RGSP runs in work O(nk^(w-1)) where w is the exponent for fast matrix multiplication.
 The work recursion relation is
 ```T(k) = 2T(k/2) + O(nk^w-1); T(1) = O(n)```
 Applying the master theorem for the recursive bound shows that while w > 2 the claimed runtime holds.
 For w=2, some log factors show up both in the matrix multiplication work and the final recursive bound.
+### Claim 6: Up to associativity and numerical errors, this is still the Gram-schmit process.
+All that has changed is when we subtract off the projections so that we can use fast matrix multiplication.
+This acts a really nice distinction between mathematics and algorithms 
+in that how you arrange the math effects how long and stable the math is.
+Because of this, I suspect that the numerical instability of the Gram Schmitt Process still persists.
+So This method improves upon one of the three properties mentioned above (it benefits from fast matrix mulitiplication) but it isn't much better than that.
 ## Analyzing The Modified Gram Schmit Process
-
+In order to deal with numerical instability of the original Gram Schmitt Process, 
+a different method was made by [FIND AUTHOR(s)]
+It uses the fact that (I -uu^T) is a more effective projection when used in series rather than in parallel.
+A poor implementation of it will take O(k^2logn) depth, but better implementations exist such as below that take O(klognk)
+```
+MGS(A) :
+if A is a vector a :
+  r = sqrt(a dot a)
+  return ( [a/r], [r] )
+let A = [a B] where a is a vector and B is the remaining columns of A
+r = sqrt( a dot a )
+q = a / r
+s = q^TB #note this is a row vector not a column vector
+C = B - qs
+(Q,R) = MGS(C)
+return  ( [q Q] , [ r s ; 0 R ] )
+```
+This method is more stable [citation needed]
 ## Reorganizing the modfied Gram Schmit Process
+Again, we can reorganize this slightly more stable algorithm to take advantage of faster matrix matrix mulitplications. (note that might ruin the numerical stability)
+The reorganization needs to keep track of a third thing the orthogonal projection Product i=1 to k (I-u_iu_i^T) ...
+We will do this by constructing a matrix (I-QSQ^T) = the product before. 
+### Algorithm Reorganized Modified Gram Schmitt Process
+```
+RMGSP(A) :
+if A is a vector a :
+  r = sqrt( a dot a )
+  return ( [a/r], [r], [1] )
+let A = [B C] where B, C are matricies of the roughly half the columns.
+(Q_1, R_1, S_1) = RGMSP(B)
+N = S_1Q_1^TC
+D = C - Q_1N
+(Q_2, R_2, S_2) = RGMSP(D)
+S_3 = (S_1)(Q_1^T)(Q_2)(S_3)
+return ( [Q_1 Q_2] , [R_1 N; 0 R_2] , [S_1 -S_3 ; 0 S_2 ] )
+```
+### Claim 1: This Algorithm RMGSP computes a decomposition:
+We will prove this decomposition fact by strong induction on the input width k.
+Base Case: ```a = [a/r]*[r]``` 
+Inductive Case: ``` [Q_1 Q_2] * [R_1 N ; 0 R_2] ```
+multipling it out: ```[ Q_1*R_1 + Q_2*0  Q_1*N + Q_2*R_2 ]```
+applying inductive hypothesis on both calls ```=[B+Q_2*0  Q_1*N + D] ```
+substituting for the definition of D : ```=[B +Q_2*0 Q_1*N + C - Q_1*N ]```
+Applying simple properties of the matrix ring: ```=[B C] ```
+### Claim 2: This algorithm RMGSP computes an upper triangular matrix R when outputing (Q,R,S)
+We can prove this by strong induction on the input width k.
+Base case trivial.
+Inductive case follows from a block decomposition of an upper triangular matrix.
+### Claim 3: This algorithm RMGSP computes the serial orthogonal projection P = (I -QSQ^T) when outputing (Q, R, S)
+We will prove this by strong induction.
+Base case:
+ ```(I - qsq^T) =  (I-qq^T)``` because ```s = [1]``` in the base case.
+Inductive case:
+```(I - QSQ^T) = I - Q_1S_1Q_1^T -Q_2S_2Q_2^T +Q_1S_3Q_2^T ``` by multiplying out the definitions of S and Q
+```= I - Q_1S_1Q_1^T - Q_2S_2Q_2^T + Q_1_S_1Q_1^TQ_2S_2Q_2^T``` by expanding the definition of S3
+```=(I-Q_1S_1Q_1^T)(I-Q_2S_2Q_2^T)``` by factoring out the terms
+Which by the inductive hypothesis applied to the two subroutine calls equals the serial orthogonal projection.
+### Claim 4: ??? Q is rectangular unitary
+NUMERICAL STABILITY ANALYSIS NEEDED
+### Claim 5: RMGSP runs in O(k) depth arithmetic operations
+### Claim 6: RMGSP runs in O(nk^(w-1) ) work
 ## Top Down Method
+Was previously inside SVD paper.
+
 ## Bottom Up Method
