@@ -4,9 +4,9 @@ I somewhat selfishly want to get cited on this wikipedia page : https://en.wikip
 ## The problem
 Given any complex n by k matrix A where n >= k: 
 We seek a pair of matricies Q,R such that
-1. R is upper triangular k by k. For all i,j in [k] : if i > j then R_ij = 0
-2. Q is rectangular unitary n by k. Q^T = Q^+ The conjugate transpose is equal to the moore-penrose psuedoinverese.
-3.  A = QR . IE this is a decomposition of matrix A in particular.
+1. R is upper triangular k by k. Meaning: For all i,j in [k] : if i > j then R_ij = 0
+2. Q is rectangular unitary n by k. Meaning: Q^T = Q^+ i.e. The conjugate transpose is equal to the moore-penrose psuedoinverese.
+3.  A = QR . i.e. this is a decomposition of matrix A in particular.
 ## Analyzing The Gram Schmit Process
 The Gram-Schmit process is an old algorithm for finding the orthonormal basis of a matrix which is equivalent to the Q in a QR decomposition. It finds one orthogonal vector at a time by subtracting off the projections of that column onto precomputed orthogonal vectors. A bad implementation of it will take O(nk^2) work and O(k^2(logn)) depth. A better implementation of it will take O(klogkn) depth.
 Here is some pseudocode for the orthonormalization.
@@ -74,7 +74,7 @@ Inductive case: ```[U V]^T * [U V]``` multiplying it out gives
 ```=(U^TC - U^TUU^TC)R^-1``` by distribution property of the matrix ring
 ```= (U^TC-U^TC)R^-1``` by the inductive hypothesis
 ```= 0``` by identity properties of matrix ring
-Thus, [U V]^T[U V] = Ik as intended.
+Thus, ```[U V]^T[U V] = Ik``` as intended.
 ### Claim 3: RGSP returns an upper triangular matrix
 Trivial base case. Inductive cases follow from interaction of upper triangular and block matrix facts.
 ### Claim 4: RGSP runs in depth O(k)
@@ -154,8 +154,12 @@ Inductive case:
 Which by the inductive hypothesis applied to the two subroutine calls equals the serial orthogonal projection.
 ### Claim 4: ??? Q is rectangular unitary
 NUMERICAL STABILITY ANALYSIS NEEDED
+I need a Lemma relating the serial orthogonal projection to rectangular unitary matrix....
 ### Claim 5: RMGSP runs in O(k) depth arithmetic operations
+The recursion relation is: ```T(k) <= 2T(k/2) + log(kn) ; T(1) = log(n) ``` like before and so takes O(k) depth.
+DOES IT TAKE O(klogn) depth because the log(n) term acts as a very large constant?
 ### Claim 6: RMGSP runs in O(nk^(w-1) ) work
+Same argument as above...
 ## Top Down Method
 Was previously inside SVD paper.
 
