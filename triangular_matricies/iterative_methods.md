@@ -1,4 +1,5 @@
 # Extending Iterative Methods for Systems of linear equations.
+#### Note: This paper will be broken into 1 or 2 conference papers soonish.
 ## Intro
 Say we have an iterative method for systems of linear equations.
 Frequently those methods breaks the matrix into a Lower triangular, diagonal, and upper triangular part.
