@@ -67,5 +67,38 @@ P(- procedure | no condition) >= .7625 worst case for 3 conditioned patients: (2
 
 P(- procedure | no condition) >= .9686 if geometric average number of conditioned groups along each axis is 2. This is also the worst case for 2 conditioned patients. (32 positive cases)
 
+# Generalizing Idea: Parallel Hypercube Search
 
+## Procedure:
+0. Let there be <k/2 conditioned patients in N = k^l patient population.
+1. Randomly and Uniquely assign patients numbers between 0 and N-1
+2. Write each patients number in base k
+3. For the ith symbol s in the base k representation of a patient's number, assign them to the  i*k +base_10(s) group.
+4. Test all kl groups in parallel.
+5. A patient has a positive procedure result if all their groups tests are positive.
+## Efficiency and lag time:
+kl tests out of k^l efficiency.
+Low lag time because all tests can be done in parallel.
+## Failure mode:
+If more than k conditioned patients are in the population, all tests might return positive which will be a nearly useless result.
+## Error Rates:
+```
+P(+ procedure | condtion ) = P (+ test | condition)^L
+```
+So it is less specific?
 
+```
+P(- procedure | no condition && <k/2 conditioned patients in population) >= P(a patient shares at least one test with no conditioned patients) * P(- test |no condition)
+```
+So it is less sensitive?
+#### Did I mix up sensitive and specific?
+
+## Example
+#### N = 1000, k = 10, l = 3
+#### Number of tests: 30
+#### P(+|yes) = .998 ; P(-|NO) = .998
+#### P(+ procedure | conditioned && 5 conditioned patients in population) = .994
+#### P(- procedure | no condition && 5 conditioned patients in population) = 7/8*.998 = .873 
+
+# Conclusion
+I think higher dimensional thinking can help find better pooling, but I would need to find both the concrete test numbers (specificity and sensitivity) and concrete population numbers ( Cohert whose tests can feasibly be pooled, and condition rates for whatever is being tested). It would also be worthwile for me to familiarize myself more with the metrics of pooling quality.
