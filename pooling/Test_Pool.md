@@ -60,9 +60,12 @@ P( - procedure | no condition && <=3 patients are sick)  >= P( - test | no condi
 So it is less specific.
 Example:
 N = 1024, P(+|yes) = .9998 ; P(-|NO) = .9998
+
 P(+ procedure| yes condition) = .9990
-P(- procedure | no condition) >= .7625 worst case: (243 positive cases)
-P(- procedure | no condition) >= .9686 if geometric average number of sick groups along each axis is 2. (32 positive cases)
+
+P(- procedure | no condition) >= .7625 worst case for 3 conditioned patients: (243 positive cases)
+
+P(- procedure | no condition) >= .9686 if geometric average number of conditioned groups along each axis is 2. This is also the worst case for 2 conditioned patients. (32 positive cases)
 
 
 
