@@ -120,12 +120,19 @@ By a standard counting argument on ways to choose k elements from a set of n ele
 ``` |Possible States| = P choose C = P!/C!*(P-C)! >= (P/C)^C ``` 
 Combining these inequalities gives us the stated bound []
 
-# Halving with Inference
-If you do a normal having procedure and test each half, then the number of tests are:
-```2*C*(1+log(P/C)/log(2) ) ``` because we do 2 tests per level to find each patient.
-A more concrete proof of this could be written.
+# Halving with simple Inference
+Using ```C``` and ```P``` like above, 
+we can discuss the efficiency of the halving procedure.
+If you do a normal halving procedure and test each half,
+then the number of tests in the worst case are:
+```2*C*(1+log(P/C)/log(2) ) ``` 
+because we do 2 tests per level to find each patient,
+and there are ```log(P/C)/log(2)``` levels
+and we do roughly ```2*C``` tests at the top to learn there are ```C``` patients
+
 #### Can you get the constant 2 lower? yes!
-Do 1 test at the top & then:
+## Improving constant during search step
+Do 1 test at the top & then do the following instead of normal halving:
 ```
 Pooled_Test(Range):
   Left, Right = break(Range)
@@ -137,7 +144,25 @@ Pooled_Test(Range):
     Pooled_Test(Right)
 ```
 Basically test the left side and if its negative infer without testing that the right side is positive.
-For a random permutation of data, this improves the average constant to 1.5 instead of 2.
+For a random permutation of data, this improves the average constant to 1.5 instead of 2 on the search portion of the work.
+### Tradeoff
+This inference of positive from other tests will make false negatives far more impactful and hard to diagnose.
+Additionally this will make the critical path of how many tests we have to wait on worse by a factor of at most 2x.
+
+## Improving constant before searching
+If we have a strong reason to believe that there are C conditioned patients in a population of P,
+we can start with C tests at the beginning of the algorithm.
+Because with reasonably high probability,
+all the tests before that in a halving algorithm would be positive.
+Thus, those ```C``` test are not actually providing new information.
+When one correctly guesses the patient quantity to be ```C```,
+This improves a constant from 2 to 1.
+Additionally, this will decrease the critical path length because we are skipping the tests where we expect to have all positive.
+
+### Tradeoff
+This jump in the algorithm will cause more tests to be performed when we overestimate ```C``` significantly.
 
 # Conclusion
-I think higher dimensional thinking can help find better pooling, but I would need to find both the concrete test numbers (specificity and sensitivity) and concrete population numbers ( Cohert whose tests can feasibly be pooled, and condition rates for whatever is being tested). It would also be worthwile for me to familiarize myself more with the metrics of pooling quality.
+I think higher dimensional thinking can help find better pooling, but I would need to find both the concrete test numbers (specificity and sensitivity) and concrete population numbers ( Cohert whose tests can feasibly be pooled, and condition rates for whatever is being tested). 
+It would also be worthwile for me to familiarize myself more with the metrics of pooling quality.
+Other than the tests themselves, what other data (maybe contract tracing) can be added to the problem?
