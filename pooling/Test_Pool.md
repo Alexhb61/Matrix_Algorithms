@@ -100,5 +100,44 @@ So it is less sensitive?
 #### P(+ procedure | conditioned && 5 conditioned patients in population) = .994
 #### P(- procedure | no condition && 5 conditioned patients in population) = 7/8*.998 = .873 
 
+# Lower Bound on Unstructured Pooling of Boolean Test
+Inspired by well known bounds on sparse data compression,
+we can do the following lower bound analysis.
+So if we assume the following properties of a unstructured pooling of a boolean test:
+1. We only have positive-negative tests.
+2. We have P patients and no knowledge of correlative or causal effects between patients.
+3. We have C patients with the condition being searched for in our population.
+4. The Pooling Protocol specifically identifies all C conditioned patients.
+#### Then any pooling protocol which meets the above conditions must conduct at least C(log(P/C))/log2 tests
+Proof:
+We only have positive-negative tests,
+so each test only provides 1 bit of data.
+Thus, We can only disambiugate the possible input states by at best cutting the possible states in half.
+Further more we must fully identify all the conditioned patients,
+so we must end with one input state which we identified.
+Thus ``` tests >= log(|possible states| ) / log 2 ``` .
+By a standard counting argument on ways to choose k elements from a set of n elements,
+``` |Possible States| = P choose C = P!/C!*(P-C)! >= (P/C)^C ``` 
+Combining these inequalities gives us the stated bound []
+
+# Halving with Inference
+If you do a normal having procedure and test each half, then the number of tests are:
+```2*C*(1+log(P/C)/log(2) ) ``` because we do 2 tests per level to find each patient.
+A more concrete proof of this could be written.
+#### Can you get the constant 2 lower? yes!
+Do 1 test at the top & then:
+```
+Pooled_Test(Range):
+  Left, Right = break(Range)
+  if Real_Test(Pool(Left))
+    Pooled_Test(Left)
+    if Real_Test(Pool(Right)) :
+      Pooled_Test(Right)
+  else: # infer right side is positive.
+    Pooled_Test(Right)
+```
+Basically test the left side and if its negative infer without testing that the right side is positive.
+For a random permutation of data, this improves the average constant to 1.5 instead of 2.
+
 # Conclusion
 I think higher dimensional thinking can help find better pooling, but I would need to find both the concrete test numbers (specificity and sensitivity) and concrete population numbers ( Cohert whose tests can feasibly be pooled, and condition rates for whatever is being tested). It would also be worthwile for me to familiarize myself more with the metrics of pooling quality.
