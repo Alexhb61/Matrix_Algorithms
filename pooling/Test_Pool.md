@@ -130,8 +130,7 @@ For the sake of an initial attempt,
 let's assume contact tracing a specific disease gives us:
 1. A way to use a single confirmed case to find many likely-positive cases.
 2. A way to rank cases by how many likely-positive cases they might tell us about if positive.
-Then
-The lower bound for confirmed cases will not apply to the quantity of tests needed to find likely-positive cases.
+#### THEN The lower bound for confirmed cases will not apply to the quantity of tests needed to find likely-positive cases.
 ### Outer Procedure: Using Contact Tracing
 We can beat the bound by repeatedly finding patient "zero"
 (the highest rank case which is positive)
@@ -196,8 +195,6 @@ Additionally, this will decrease the critical path length because we are skippin
 
 ### Tradeoff
 This jump in the algorithm will cause more tests to be performed when we overestimate ```C``` significantly.
-
-
 
 # Conclusion
 I think higher dimensional thinking can help find better pooling, but I would need to find both the concrete test numbers (specificity and sensitivity) and concrete population numbers ( Cohert whose tests can feasibly be pooled, and condition rates for whatever is being tested). 
