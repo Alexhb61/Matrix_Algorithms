@@ -119,6 +119,41 @@ Thus ``` tests >= log(|possible states| ) / log 2 ``` .
 By a standard counting argument on ways to choose k elements from a set of n elements,
 ``` |Possible States| = P choose C = P!/C!*(P-C)! >= (P/C)^C ``` 
 Combining these inequalities gives us the stated bound []
+## Working around the lower bound: Group id
+The lower bound follows from the strict assumptions,
+so if in a particular use case an assumption can be relaxed,
+then one may be able to do less testing.
+The easiest assumption to relax is number 4 (specific identification).
+This can be relaxed simply by searching for a particular group (which includes the sick individual) instead of a particular individual.
+## Working around the lower bound: Contact tracing
+For the sake of an initial attempt,
+let's assume contact tracing a specific disease gives us:
+1. A way to use a single confirmed case to find many likely-positive cases.
+2. A way to rank cases by how many likely-positive cases they might tell us about if positive.
+Then
+The lower bound for confirmed cases will not apply to the quantity of tests needed to find likely-positive cases.
+### Outer Procedure: Using Contact Tracing
+We can beat the bound by repeatedly finding patient "zero"
+(the highest rank case which is positive)
+Removing all higher rank cases (which are negative).
+Then using contact tracing to remove(label likely-positive) some lower rank cases.
+And repeating until all cases are labelled likely-positive, positive, or negative.
+### Inner Procedure: Finding Highest Ranked Positive Case
+```
+Rank_Test(Patient_list):
+  if length(Patient_list) == 1:
+    return _
+  Top, Bottom = Break-in-2(Patient_list)
+  if Real_Test(Pool(Top) ) :
+    return 0 ++ Rank_Test(Top)
+  else
+    return 1 ++ Rank_Test(Bottom)
+```
+This pseudocode captures the idea of doing 1 test on half the patients, then recursing on the positive half or the implied positive half. A test on the full list should be run at the start.
+### Efficiency:
+The efficiency is hard to analyze without more information about the contact tracing.
+### Trade off:
+Likely positive tests might not be enough for many purposes.
 
 # Halving with simple Inference
 Using ```C``` and ```P``` like above, 
@@ -162,7 +197,8 @@ Additionally, this will decrease the critical path length because we are skippin
 ### Tradeoff
 This jump in the algorithm will cause more tests to be performed when we overestimate ```C``` significantly.
 
+
+
 # Conclusion
 I think higher dimensional thinking can help find better pooling, but I would need to find both the concrete test numbers (specificity and sensitivity) and concrete population numbers ( Cohert whose tests can feasibly be pooled, and condition rates for whatever is being tested). 
 It would also be worthwile for me to familiarize myself more with the metrics of pooling quality.
-Other than the tests themselves, what other data (maybe contract tracing) can be added to the problem?
