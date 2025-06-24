@@ -127,22 +127,25 @@ ConstrainedO(Orcale,c,d,x,r):
   if status == maybe:
     new_direction = direction - project direction onto c
     length = 2-norm(new_direction)
-    return (maybe, new_direction/length, distance_bound/length )
+    new_direction /= length
+    delta = (new_direction dot product direction)
+    return (maybe, new_direction, distance_bound/delta )
   if status == yes
     (status,direction,distance_bound) = Orcale(x,distance_bound)
     assert(status == maybe)
     new_direction = direction - projection direction onto c
     length = 2-norm(new_direction)
-    new_distance_bound = distance_bound /length
+    new_direction /= length
+    new_distance_bound = distance_bound /(direction dot product new_direction)
     if new_distance_bound < r :
       return (yes,_, new_distance_bound )
     else :
-      return (maybe, new_direction/length, new_distance_bound) 
+      return (maybe, new_direction, new_distance_bound) 
   if status == absolutely :
     if cx = d :
       return (status,direction,distance_bound)
     else :
-      //throw error
+      throw error // initial x didn't satisfy constraint OR numerical instability problem
 ```
 ## Correctness and runtime Analysis:
 It uses at most 2 runs of the inner orcale, and O(n) work and O(log(n)) depth.
@@ -161,11 +164,38 @@ Let A have at most z elements per column.
 Then the 2-norm of A is at most sqrt(sqrt(s)z).
 Proof: 
 ```2-norm(A)^2 <= 1-norm(A)*infinity-norm(A) <= sqrt(s)*z``` and now the bound holds.
-## sparse and inner product program.
-TO DO 
-
+## sparse and well conditioned program.
+Given a monotone circuit on G gates, we can construct a sparse linear program on O(G) variables.
+Note that each variable of a gate should only occur 1 outside its definition. (the time when its used).
+### Input a used k times
+a_1 >= 1 iff on a_1 >= 0 iff off
+a_i - a_(i-1) >= 0 (k-1 times i ranges from 2 to k) 
+### a = b OR c used k times
+a_0 -b>= 0
+a_0 -c>= 0
+a_i - a_(i-1) >= 0 (k times i ranges from 1 to k) 
+### a = b AND c used k times
+a_0 - b -c >= -1
+a_0 >= 0 
+a_i - a_(i-1) >= 0 (k times i ranges from 1 to k) 
+### GOAL
+minimize sum of outputs
+### Sparsity:
+we have 3 uses per variable and 3 entries per constraint.
+### Making a sparse program well conditioned:
+For any pair of constraints whose inner product is negative,
+we add a dummy variable d to both constraints, 
+and a new constraint d >= 0
+The number of new variables is at most s^2 n.
+The number of uses per variable is at most max(2,s)
+The number of entries per constraint is at most s^2 + s.
+So the new program is still sparse.
+#### Finally,
+We need to force all the dummy variables to be zero.
+We can do that with one equality constraint :
+sum dummy = 0.
 # Conclusion:
 For a well behaved system of linear inequalitites, the fetch method with one of the orcales uses
 depth ```O(log(n)*D^2*log(R/r))``` and work ```O(nmD^2*log(R/r))```.
 With sufficient preconditioning, this algorithm can solve linear programming in polylogarithmic depth.
-However the sufficient preconditioning to get to a NC = P result might be impossible.
+However the sufficient preconditioning to get to a NC = P result might be incorrect.
