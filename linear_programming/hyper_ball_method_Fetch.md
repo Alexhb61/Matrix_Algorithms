@@ -70,18 +70,22 @@ Orcale(A,b,x,r) :
     return (no,_,_ )
   if r > D* epsilon :
     return (yes,_, D* epsilon )
-  return (maybe, d, epsilon)
+  return (maybe, direction, epsilon)
 ```
 ## Analysis
+The normalization of the rows and epsilon makes certain that d is unit length.
+C being one follows from the fact that projecting the vector (x-x_opt) onto a direction 
+always shrinks the length of the vector.
 The runtime for this orcale is O(nm) work and O(log(m) + log(n)) depth, because its dominated by the matrix operations.
-# Complex C-D-distance Orcale
+### Warning D uncertrainty.
+D is funkier, but to the best of my understanding I have described the appropriate hoffman constant.
+# Complex 1-D-distance Orcale
 This orcale is slightly more complicated because it generates a constraint to update.
-For this algorithm, C is the reciprical of the 2-norm of A and D is the hoffman constant(A,b) which uses the 2-norm both times.
 ## Orcale
 ```
 Orcale(A,b,x,r):
-  C = 1/2-matrix-norm(A)
-  D = Hoffman_Constant_2-norm(A)
+  C = 1
+  D = Hoffman_Constant_2-norm(A)*2-norm(A)
   //in practice the constant can be set to infinity or doubled in size each time.
   error = elementwise_max(0,Ax-b)
   unnormalized_direction = A^t*error
@@ -95,7 +99,10 @@ Orcale(A,b,x,r):
   return (maybe,direction, epsilon)
 ```
 ## Analysis:
+C being one holds for the same reason as before.
 This orcale's work is again bounded by O(nm) and again depth O(log(n)+log(m)).
+### Warning D uncertainty:
+D is independent of scaling A and b, so the equation looking like condition number makes sense.
 # Conclusion:
 For a well behaved system of linear inequalitites, the fetch method with one of the orcales uses
 depth ```O(log(n)*D^2*log(R/r))``` and work ```O(nmD^2*log(R/r))```.
