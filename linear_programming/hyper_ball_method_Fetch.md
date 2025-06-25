@@ -149,8 +149,11 @@ ConstrainedO(Orcale,c,d,x,r):
 ```
 ## Correctness and runtime Analysis:
 It uses at most 2 runs of the inner orcale, and O(n) work and O(log(n)) depth.
-I believe it doesn't effect C and D because epsilon only grows, but doesn't definitely grow.
+I believe it doesn't effect D because epsilon only grows, but doesn't definitely grow.
 The geometry seems clear.
+## Concern Numerical Stability and C constant:
+I can imagine a situation where the polytope defined by the inequalities is non-empty, but the polytope after intersecting with the equality constraint is empty. This could lead to a nearly zero new_direction which might then cause oscillation or other problems.
+However, it at least means that 1/C is unbounded in that case.
 
 # Stable Programs
 ## H(A) inner product Lemma:
@@ -168,24 +171,24 @@ Proof:
 Given a monotone circuit on G gates, we can construct a sparse linear program on O(G) variables.
 Note that each variable of a gate should only occur 1 outside its definition. (the time when its used).
 ### Input a used k times
-a_1 >= 1 iff on a_1 >= 0 iff off
-a_i - a_(i-1) >= 0 (k-1 times i ranges from 2 to k) 
+```a_1 <= 1``` iff on ```a_1 <= 0``` iff off
+```a_i - a_(i-1) <= 0``` (k-1 times i ranges from 2 to k) 
 ### a = b OR c used k times
-a_0 -b>= 0
-a_0 -c>= 0
-a_i - a_(i-1) >= 0 (k times i ranges from 1 to k) 
+```a_0 - b - c <= 0 ```
+```a_0 <= 1```
+```a_i - a_(i-1) <= 0``` (k times i ranges from 1 to k) 
 ### a = b AND c used k times
-a_0 - b -c >= -1
-a_0 >= 0 
-a_i - a_(i-1) >= 0 (k times i ranges from 1 to k) 
+```a_0 - b <= 0```
+```a_0 - c <= 0```
+```a_i - a_(i-1) >= 0``` (k times i ranges from 1 to k) 
 ### GOAL
-minimize sum of outputs
+maximize sum of outputs
 ### Sparsity:
 we have 3 uses per variable and 3 entries per constraint.
 ### Making a sparse program well conditioned:
 For any pair of constraints whose inner product is negative,
 we add a dummy variable d to both constraints, 
-and a new constraint d >= 0
+and a new constraint d <= 0
 The number of new variables is at most s^2 n.
 The number of uses per variable is at most max(2,s)
 The number of entries per constraint is at most s^2 + s.
