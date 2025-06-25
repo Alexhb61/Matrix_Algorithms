@@ -197,6 +197,32 @@ So the new program is still sparse.
 We need to force all the dummy variables to be zero.
 We can do that with one equality constraint :
 sum dummy = 0.
+# Convex dual Program:
+We can solve any linear program Ax<= b if given a starting point x_0 
+and a bound R on the distance between x_0 and the polytope of the program
+by solving the problem of finding the distance to the polytope from x_0.
+## The program:
+This dual problem has the form:
+```y >= 0 ```
+```yTAATy <= 1```
+```max (Ax_0-b)Ty ```
+Essentially we are trying to construct the most violated constraint possible.
+Then ```x_true = x_0 - ATy*max_value```.
+If we limit y to only the terms that have nonzero value to maximize,
+then the program is feasible whenever the remaining matrix has full rank.
+However, I don't believe the converse holds.
+This program has the implicit constraints that  ```y_i <= 2-norm(row_i(A)) ```
+## Stability:
+I believe this program is stable because it is the intesection of a box and ellipsoid,
+and so should lack the pointy parts which make other programs unstable.
+Although, I might be imagining a axis-aligned elliposid which may not generalize to other ellipsoids.
+## Solving:
+We can solve this program with log(R/r) calls to the fetch method 
+where we binary search on the optimum of this program, 
+and make the optimization criteria an equality constraint.
+Lastly, we can turn the remaining two constraint sections into an oracle
+by using the complex orcale described above on the matrix and vector:
+```A = (-I_n) row_concat (yAAT) ; b = 0_n row_concat 1 ```
 # Conclusion:
 For a well behaved system of linear inequalitites, the fetch method with one of the orcales uses
 depth ```O(log(n)*D^2*log(R/r))``` and work ```O(nmD^2*log(R/r))```.
