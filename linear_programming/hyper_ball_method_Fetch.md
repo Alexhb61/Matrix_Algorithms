@@ -223,6 +223,23 @@ and make the optimization criteria an equality constraint.
 Lastly, we can turn the remaining two constraint sections into an oracle
 by using the complex orcale described above on the matrix and vector:
 ```A = (-I_n) row_concat (yAAT) ; b = 0_n row_concat 1 ```
+## Derivation of other program:
+```y >= 0 ```
+```yTAATy <= 1```
+```max (Ax_0-b)Ty ```
+limit A to the rows where (Ax_0-b) > 0 to be B.
+Then singular value decompose ```BBT = USU*```
+``` Ux >= 0 ```
+``` xTSx <=1 ```
+``` max (Ax_0-b)+Ux ```
+We make a very good orcale for ```Ux>= 0``` via the complex orcale above.
+Then, we constrain it to have a constant cx= d constraint from the maximzation criteria.
+Finally, we ?alternate it? with the xTSx <= 1 constraints...
+
+# Question: How does one combine two distance orcales?
+A separation oracle for C intersect K can be easily constructed from a separation oracle for C and from a separation oracle for K.
+However a distance oracle for C intersect K is harder to construct from the distance orcales, because the yes-yes case does not imply a yes case.
+
 # Conclusion:
 For a well behaved system of linear inequalitites, the fetch method with one of the orcales uses
 depth ```O(log(n)*D^2*log(R/r))``` and work ```O(nmD^2*log(R/r))```.
