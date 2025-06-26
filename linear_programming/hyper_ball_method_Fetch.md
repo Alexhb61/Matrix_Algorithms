@@ -112,9 +112,9 @@ C being one holds for the same reason as before.
 This orcale's work is again bounded by O(nm) and again depth O(log(n)+log(m)).
 ### Noting D:
 D is independent of scaling A and b, so the equation looking like condition number makes sense.
-```||x-x_opt|| >= H(A)|*||(Ax-b)+| ``` first bound
-```||(Ax-b)+||^2 = error^terror >= epsilon*length >= epsilon*2-norm(A^t)*2-norm(error) ``` 2nd bound
-and thus, ```||(Ax-b)+|| >= epsilon*2-norm(A^t) ```
+```||x-x_opt|| <= H(A)|*||(Ax-b)+| ``` first bound
+```||(Ax-b)+||^2 = error^terror = epsilon*length <= epsilon*2-norm(A^t)*2-norm(error) ``` 2nd bound
+and thus, ```||(Ax-b)+|| <= epsilon*2-norm(A^t) ```
 And finally, ```D = H(A)*2-norm(A^t)``` 
 # Constrained Orcale:
 This takes an orcale for a problem and adds an equality constraint. (cx = d)
@@ -159,7 +159,7 @@ However, it at least means that 1/C is unbounded in that case.
 ## H(A) inner product Lemma:
 Let A have 2-norm-normalized rows, and let the inner product of any 2 rows be non-negative.
 Then the H(A) for 2-norm is 1 .
-Proof: ||x-x_opt||^2 >= ||(Ax-b)+||^2
+Proof: ||x-x_opt||^2 <= ||(Ax-b)+||^2
 because no obtuse kite effects occur only squares or acute kite effects occur.
 ## ||A|| sparsity lemma:
 Let A have 2-normalized rows, and let A have at most s nonzero elements per row.
