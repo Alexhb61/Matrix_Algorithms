@@ -111,44 +111,54 @@ D is independent of scaling A and b, so the equation looking like condition numb
 and thus, ```||(Ax-b)+|| <= epsilon*2-norm(A^t) ```
 And finally, ```D = H(A)*2-norm(A^t)``` 
 # Constrained Orcale:
-This takes an orcale for a problem and adds an equality constraint. (cx = d)
+This takes an orcale for a problem and adds a matrix of equality constraints (Cx = d)
 ## Pseudocode:
 ```
-ConstrainedO(Orcale,c,d,x,r):
+ConstrainedO(Orcale,C,d,x,r):
   (status,direction,distance_bound) = Orcale(x,r)
   if status == no :
     return (status,direction,distance_bound)
   if status == maybe:
-    new_direction = direction - project direction onto c
+    new_direction = direction - (CT(CCT)^+C)direction
+    // where the plus superscript is moore penrose pseudoinverse and the T is transpose.
     length = 2-norm(new_direction)
     new_direction /= length
     delta = (new_direction dot product direction)
-    return (maybe, new_direction, distance_bound/delta )
+    distance_bound /= delta
+    if distance_bound < r :
+      return (maybe, new_direction, distance_bound )
+    else :
+      return (no,_,_)
   if status == yes
     (status,direction,distance_bound) = Orcale(x,distance_bound)
     assert(status == maybe)
-    new_direction = direction - projection direction onto c
+    new_direction = direction - (CT(CCT)^+C)direction
     length = 2-norm(new_direction)
     new_direction /= length
     new_distance_bound = distance_bound /(direction dot product new_direction)
-    if new_distance_bound < r :
-      return (yes,_, new_distance_bound )
+    if new_distance_bound > r :
+      return (no,_,_)
+    else if new_distance_bound*D < r
+      return (yes,_, new_distance_bound*D )
     else :
       return (maybe, new_direction, new_distance_bound) 
   if status == absolutely :
-    if cx = d :
+    if Cx = d :
       return (status,direction,distance_bound)
     else :
       throw error // initial x didn't satisfy constraint OR numerical instability problem
 ```
 ## Correctness and runtime Analysis:
+The Computational Complexity of the pseudoinverse and the matrix vector multiplications vary in significance.
 It uses at most 2 runs of the inner orcale, and O(n) work and O(log(n)) depth.
 I believe it doesn't effect D because epsilon only grows, but doesn't definitely grow.
 The geometry seems clear.
+
 ## Concern Numerical Stability:
 I can imagine a situation where the polytope defined by the inequalities is non-empty, but the polytope after intersecting with the equality constraint is empty. This could lead to a nearly zero new_direction which might then cause oscillation or other problems.
+
 # Conclusion:
 For a well behaved system of linear inequalitites, the fetch method with one of the orcales uses
 depth ```O(log(n)*D^2*log(R/r))``` and work ```O(nmD^2*log(R/r))```.
 With sufficient preconditioning, this algorithm can solve linear programming in polylogarithmic depth.
-However the sufficient preconditioning to get to a NC = P result might be incorrect.
+However the sufficient preconditioning to get to a NC = P result might be infeasible.
