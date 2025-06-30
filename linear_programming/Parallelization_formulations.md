@@ -73,3 +73,12 @@ and thus easily pseudoinverted in fast parallel time.
 ## Concern:
 Did I correctly analyze that the constant D is unaffected by adding constraints?
 
+# Convex Dual Program
+We want to solve ```Ax<= b```
+by looking for a ```y>= 0 ; yTAATy <= 1; max (Ax-b)Ty ```
+we can break ```AAT = UDDUT``` where D is diagonal and U is orthogonal.
+Then break into:
+```Ux >= 0; Dx = z ; zTz <= 1 ```
+This can be solved quickly because U has condition number 1 and norm 1.
+Similarly the ```zTz <= 1``` constraint will just have similarly distance = epsilon situation.
+So? does this succeed in one iteration? Maybe? If the approximation is any constant, this works as a NC/poly = P/poly algorithm.
