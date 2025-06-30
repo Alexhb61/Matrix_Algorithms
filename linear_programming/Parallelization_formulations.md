@@ -1,5 +1,5 @@
 # Introduction:
-Multiple paths from Fetch method to NC= P.
+This is a writeup of multiple paths from Fetch method & 2-Norm Oracle & constrained Oracle to NC= P.
 
 # Stable Programs
 ## H(A) inner product Lemma:
@@ -44,46 +44,32 @@ So the new program is still sparse.
 We need to force all the dummy variables to be zero.
 We can do that with one equality constraint :
 sum dummy = 0.
-# Convex dual Program:
-We can solve any linear program Ax<= b if given a starting point x_0 
-and a bound R on the distance between x_0 and the polytope of the program
-by solving the problem of finding the distance to the polytope from x_0.
-## The program:
-This dual problem has the form:
-```y >= 0 ```
-```yTAATy <= 1```
-```max (Ax_0-b)Ty ```
-Essentially we are trying to construct the most violated constraint possible.
-Then ```x_true = x_0 - ATy*max_value```.
-If we limit y to only the terms that have nonzero value to maximize,
-then the program is feasible whenever the remaining matrix has full rank.
-However, I don't believe the converse holds.
-This program has the implicit constraints that  ```y_i <= 2-norm(row_i(A)) ```
-## Stability:
-I believe this program is stable because it is the intesection of a box and ellipsoid,
-and so should lack the pointy parts which make other programs unstable.
-Although, I might be imagining a axis-aligned elliposid which may not generalize to other ellipsoids.
-## Solving:
-We can solve this program with log(R/r) calls to the fetch method 
-where we binary search on the optimum of this program, 
-and make the optimization criteria an equality constraint.
-Lastly, we can turn the remaining two constraint sections into an oracle
-by using the complex orcale described above on the matrix and vector:
-```A = (-I_n) row_concat (yAAT) ; b = 0_n row_concat 1 ```
-## Derivation of other program:
-```y >= 0 ```
-```yTAATy <= 1```
-```max (Ax_0-b)Ty ```
-limit A to the rows where (Ax_0-b) > 0 to be B.
-Then singular value decompose ```BBT = USU*```
-``` Ux >= 0 ```
-``` xTSx <=1 ```
-``` max (Ax_0-b)+Ux ```
-We make a very good orcale for ```Ux>= 0``` via the complex orcale above.
-Then, we constrain it to have a constant cx= d constraint from the maximzation criteria.
-Finally, we ?alternate it? with the xTSx <= 1 constraints...
+## Conclusion:
+If this program is as stable as I believe, it existing shows NC= P
 
-# Question: How does one combine two distance orcales?
-A separation oracle for C intersect K can be easily constructed from a separation oracle for C and from a separation oracle for K.
-However a distance oracle for C intersect K is harder to construct from the distance orcales, because the yes-yes case does not imply a yes case.
+# Separated Programs:
+Given a Circuit of AND and OR gates, we can write it as a linear program 
+with each gate being its own block in the matrix and no-overlaps.
+Then connect the gates with equality constraints considered separately.
+### AND Gates:
+```a_i - b_i <= 0 ```
+```a_i - c_i <= 0```
+```-a_i + b_i +c_i <= 1```
+### OR gates:
+```-a_i + b_i <= 0```
+```-a_i + c_i <= 0```
+``` a_i -b_i -c_i <= 0 ```
+## Block Bounds
+The 2-norm of a block matrix is at most the 2-norm of any block. Proof: follows from spectral definition.
+The 2-norm based hoffman constant for a block matrix is at most the hoffman constant of any block.
+Proof: follows from spectral definition of submatrix.
+## Fast inverse of the equality constraints:
+Each value in the circuit will have its own set of variables which all need to be set equal.
+We can easily compute the pseudoinverse, as the pseudoinverse of a block matrix is just the pseudoinverses of the blocks separately.
+Furthermore the constraints to set k values to the same value can be done
+via a k by k matrix with 1's down the main diagonal and -1's down the second circulant. 
+This circulant matrix is easily put into diagonal form via the fourier transform,
+and thus easily pseudoinverted in fast parallel time.
+## Concern:
+Did I correctly analyze that the constant D is unaffected by adding constraints?
 
