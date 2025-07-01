@@ -66,19 +66,23 @@ Proof: follows from spectral definition of submatrix.
 ## Fast inverse of the equality constraints:
 Each value in the circuit will have its own set of variables which all need to be set equal.
 We can easily compute the pseudoinverse, as the pseudoinverse of a block matrix is just the pseudoinverses of the blocks separately.
-Furthermore the constraints to set k values to the same value can be done
-via a k by k matrix with 1's down the main diagonal and -1's down the second circulant. 
-This circulant matrix is easily put into diagonal form via the fourier transform,
-and thus easily pseudoinverted in fast parallel time.
+Furthermore the constraint enforcement matrix (I - C(CCT)+C) for each block of equality constraints,
+can be simplified to (1/k(1_k)(1_kT)) or in words replace all effects on a equality block with their average.
 ## Concern:
 Did I correctly analyze that the constant D is unaffected by adding constraints?
 
 # Convex Dual Program
-We want to solve ```Ax<= b```
-by looking for a ```y>= 0 ; yTAATy <= 1; max (Ax-b)Ty ```
+We want to solve ```Ax<= b``` given the answer is in Ball(x_0,R) and contains a ball of radius r.
+by looking for a ```y>= 0 ; yTAATy <= 1; max (Ax_0-b)Ty ```
 we can break ```AAT = UDDUT``` where D is diagonal and U is orthogonal.
 Then break into:
-```Ux >= 0; Dx = z ; zTz <= 1 ```
+```Uw >= 0; w= v; Dw = z ; zTz <= 1 ; max (Ax_0-b)TUv ```
+Then divide into R/r many programs with varying maximization value m:
+```Uw>=0; w=v; Dw = z; zTz <= 1 ; (Ax_0-b)TUv >= m ;```
 This can be solved quickly because U has condition number 1 and norm 1.
-Similarly the ```zTz <= 1``` constraint will just have similarly distance = epsilon situation.
+Similarly the ```zTz <= 1``` constraint will have slack in constraint = distance from solution.
+Lastly, the single constraint on v will have correct slack = distance behaviour.
 So? does this succeed in one iteration? Maybe? If the approximation is any constant, this works as a NC/poly = P/poly algorithm.
+## Best case:
+Assuming it works in 1 iteration, this will show that P/poly = L/poly 
+since you need to analyze the matrix ahead of time but solve the program when b arrives.
