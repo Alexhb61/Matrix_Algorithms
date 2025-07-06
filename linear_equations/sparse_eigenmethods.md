@@ -53,11 +53,11 @@ sampled_determinant(A,x):
     dets = dets hadmard_product ith_term_determinant(A,x,i) 
   return dets
 ith_term_determinant(A,x,i):
-  product = I * (column i up to row i-1 (A))
-  initialize z 
+  product = (column i up to row i-1 (A))
+  initialize z to be empty
   for j in 1 to p:
     z_j = (row i up to column i-1(A)) * product
-    product = A matrix_multiply product
+    product = A * product
   y = Vandermonde_multiply(entrywise_inverse(x), z)
   return 1_n - (A_ii) * entrywise_inverse(x) - y
 ```
@@ -65,11 +65,56 @@ ith_term_determinant(A,x,i):
 Work is O(nlogn + nlogn + n^2logn +  + psn^2) for the four layers of heavy logic.
 Note that I as of writing don't know how to bound the p term.
 Clearly as p -> infinity, the inverse formula holds.
-How large p should be for convergence of the eigenvalues themselves is unclear.
+How large p should be for convergence of the eigenvalues themselves is unclear at time of writing
 
+# Eigenvector Problem:
+### Reduction 1:
+This first reduction follows from the definition of an eigenvector.
+```
+eigenvector(lambda,m,A):
+  return nullspace(A- lambda * I_n,m)
+```
+### Reduction 2:
+The second reduction is from nullspace to random sampling:
+#### WARNING: If we need an orthogonal vector set within the same eigenspace that will be MORE work
+```
+nullspace(B, k):
+  for i in 1 to k:
+    r_k = random_vector(n) //sample unit normal vector from uniform spherical distribution.
+    n_k = least_squares_one_b(A,r_k,1) //solve Ax = 0 ; r_kTx = 1
+  return n_*
 
-
-
-
-
+// This method could be lifted to be a general sparse system solver... of s_b * n * s_A * C work...
+least_squares_one_b(A,c,b):
+  //ASSUMING A is both s-row-asymptotic-sparse AND s-column-asymptotic-sparse:
+  A_* = break_into_orthogonal_groups(A)
+  // Using graph theory on the matrix AAT you want an independent set.
+  // So coloring that graph with s^2 colors gets you the division.
+  // A lazy bad division is all rows separately.
+  for all i:
+    let a_i be the row 2-norms of A_i
+  v = c //start here
+  i = 1
+  //using epsilon for precision.
+  while 2-norm(A*v) > epsilon :
+    v = v - (A_iT * ( Diag(entrywise_inverse(a_i hadmard a_i) ) (A_i * v)))
+    normalization_constant = cT * v
+    if abs( normalization_constant)  < epsilon * sqrt(vT*v)  :
+      throw NO VECTOR ERROR
+    v = v * b / normalization_constant
+    i++
+    if i > number_of_orthogonal_groups :
+      i = 1
+  return v 
+```
+### Concerns:
+The argument which is most dubious is:
+Is the random sampling sufficient to get the whole nullspace?
+Other Concern:
+Clearly, if a vector is returned its an approximate nullspace vector.
+However, It might not be obvious to everyone why the algorithm converges in "most" cases.
+(Whats the probability that a random unit vector has inner product epsilon with another unit vector?
+Thats the probability of a false negative?)
+### Analysis:
+ finding k spanning n-dimensional vectors of an eigenspace can be done in O(knsC) time when the matrix is s-sparse where C is a stability constant I don't know at time of writing.
 
