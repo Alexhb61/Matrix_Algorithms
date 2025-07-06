@@ -23,24 +23,39 @@ I have not successfully bound the necessary number of iterations,
 and thus the constant C is unknown.
 
 # Eigenvalue Problem:
-### Reduction 1:
+## Reduction 1:
 The first reduction is well established relationship between the characteristic polynomial
 ```
 eigenvalues(A):
   coefficients_polynomial = characteristic_polynomial(A)
   return zeros_finding(coefficicents_polynomial)
 ```
-### Reduction 2:
+### Stability Remark
+If we need the eigenvalues to b bits of precision,
+then we will need the coefficients to bK bits of precision where this K is the "condition" number of the characteristic polynomial of A.
+Note: this is not necessarily the condition number of A
+
+## Reduction 2:
 The second reduction is well established relationship of a polynomial's evaluation points and its coefficients.
 We are choosing the sample points so that later parts of the algorithm can use an easy inversion choice.
 ```
 characteristic_polynomial(A):
   N = 2_norm_estimate(A)
-  B = 2 // a number bigger than 1 which effects truncation error vs convergence error
-  x = list_roots_of_identity(n(A) * B * N
+  Beta = 2 // a number bigger than 1 which effects truncation error vs convergence error
+  x = list_roots_of_identity(n(A)) * Beta * N
   sampled_polynomial = sampled_determinant(A,x )
   return inverse_vandermonde(x,sampled_polynomial) // if done correctly this is a scaled fourier transform
 ```
+### Stability Remark:
+Let Beta = 2.
+If we need the coefficients to bK bits of precision, 
+then we will need the evaluation points to bKQ bits of precision
+where Q is a precision bound on the inverse vandermonde transform.
+(I suspect that using the condition number to bound this Q 
+will wildly overestimate the instability because this vandermonde matrix is a fourier transform 
+(which tends to be stable) and diagonal matrix (which tends to be stable) ) 
+The predicted stability by the condition number might be high
+because the exponent part of the different terms is prone to diverge at this step.
 
 ### Reduction 3:
 The problem is to solve det(xI-A) for varying x.
@@ -65,18 +80,21 @@ ith_term_determinant(A,x,i):
 Work is O(nlogn + nlogn + n^2logn +  + psn^2) for the four layers of heavy logic.
 Note that I as of writing don't know how to bound the p term.
 Clearly as p -> infinity, the inverse formula holds.
-How large p should be for convergence of the eigenvalues themselves is unclear at time of writing
+Furthermore, if we need p terms for convergence,
+we will need p bits of precision in order for the lower order terms to be relevant.
+This relation is likely sufficient to show that if we only need bKQ bits of precision,
+then we can easily truncate the sum to 2bKQ terms without loss of accuracy.
 
 # Eigenvector Problem:
-### Reduction 1:
+## Reduction 1:
 This first reduction follows from the definition of an eigenvector.
 ```
 eigenvector(lambda,m,A):
   return nullspace(A- lambda * I_n,m)
 ```
-### Reduction 2:
+## Reduction 2:
 The second reduction is from nullspace to random sampling:
-#### WARNING: If we need an orthogonal vector set within the same eigenspace that will be MORE work
+#### WARNING: If we need an orthonormal vector set within the same eigenspace that will be MORE work
 ```
 nullspace(B, k):
   for i in 1 to k:
@@ -89,17 +107,19 @@ least_squares_one_b(A,c,b):
   //ASSUMING A is both s-row-asymptotic-sparse AND s-column-asymptotic-sparse:
   A_* = break_into_orthogonal_groups(A)
   // Using graph theory on the matrix AAT you want an independent set.
-  // So coloring that graph with s^2 colors gets you the division.
-  // A lazy bad division is all rows separately.
+  // So a greedy coloring on that graph with s^2 colors gets you the division.
+  // A lazier bad division is all rows separately.
   for all i:
     let a_i be the row 2-norms of A_i
   v = c //start here
   i = 1
-  //using epsilon for precision.
+  //using epsilon and delta for precision.
   while 2-norm(A*v) > epsilon :
     v = v - (A_iT * ( Diag(entrywise_inverse(a_i hadmard a_i) ) (A_i * v)))
     normalization_constant = cT * v
-    if abs( normalization_constant)  < epsilon * sqrt(vT*v)  :
+    if abs( normalization_constant)  < epsilon   :
+      throw NO VECTOR ERROR
+    if vT * v > delta :
       throw NO VECTOR ERROR
     v = v * b / normalization_constant
     i++
@@ -107,16 +127,18 @@ least_squares_one_b(A,c,b):
       i = 1
   return v 
 ```
-### Concerns:
+### Analysis & Concerns:
 The argument which is most dubious is:
 Is the random sampling sufficient to get the whole nullspace?
 Other Concern:
 Clearly, if a vector is returned its an approximate nullspace vector.
 However, It might not be obvious to everyone why the algorithm converges in "most" cases.
+Furthermore, We have not bounded the number of iterations needed to converge.
 (Whats the probability that a random unit vector has inner product epsilon with another unit vector?
-Thats the probability of a false negative?)
+Thats the probability of a false negative from the normalization constant step.)
 ### Analysis:
- finding k spanning n-dimensional vectors of an eigenspace can be done in O(knsC) time when the matrix is s-sparse where C is a stability constant I don't know at time of writing.
+Finding k spanning n-dimensional vectors of an eigenspace can be done in O(knsC) time when the matrix is s-sparse where C is a stability constant.
+ 
 # Conclusion:
 An n by n s-sparse matrix can have all of its eigenvectors approximately found in O(Csn^2) time !
 (Hopefully, later, I can bound C, and the few other magic numbers still existing in this code.)
