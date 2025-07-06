@@ -117,4 +117,6 @@ However, It might not be obvious to everyone why the algorithm converges in "mos
 Thats the probability of a false negative?)
 ### Analysis:
  finding k spanning n-dimensional vectors of an eigenspace can be done in O(knsC) time when the matrix is s-sparse where C is a stability constant I don't know at time of writing.
-
+# Conclusion:
+An n by n s-sparse matrix can have all of its eigenvectors approximately found in O(Csn^2) time !
+(Hopefully, later, I can bound C, and the few other magic numbers still existing in this code.)
