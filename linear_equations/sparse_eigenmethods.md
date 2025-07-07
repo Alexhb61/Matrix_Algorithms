@@ -3,6 +3,10 @@ At the request of a friend doing physics research,
 I have been poised the general question of can I speed up eigenpair finding in the sparse case.
 I have narrowed this search to the problem in what I believe to be referred to the asymptotic sparse diagonalizable case.
 
+### Previously existing methods:
+Somehow I forgot or lost track of pre-existing methods in the middle of writing this algorithm.
+Mainly things better than the power method for sparse applications.
+
 ### Why Diagonalizable
 Diagonalizable matricies are dense in the Complex field.
 I doubt the algorithms are precise enough without this assumption.
@@ -76,9 +80,10 @@ ith_term_determinant(A,x,i):
 Work is O(nlogn + nlogn + n^2logn +  + psn^2) for the four layers of heavy logic.
 Clearly as p -> infinity, the inverse formula holds.
 Furthermore, if we need only need b bits of precision,
-then roughly the (b+1)th term should be dropable with no loss of accuracy. (And we can drop all those following
+then roughly the (b+1)th term should be dropable with no loss of accuracy. (And we can drop all those following)
 ## Analysis:
 In total work should be bounded by O(sn^2(log(n) + log(K(A)) + log(K(p(A'))) ) ).
+Depth should be 
 #### Counterexample Warning:
 If either condition number is exponential in n ( and thus not a speedup over cubic methods),
 you will need polynomial in n bits of precision for any standard solution.
@@ -136,10 +141,21 @@ Furthermore, We have not bounded the number of iterations needed to converge.
 Thats the probability of a false negative from the normalization constant step.)
 ### Analysis:
 Finding k spanning n-dimensional vectors of an eigenspace can be done in O(knsC) time when the matrix is s-sparse where C is a stability constant.
+
+## Reduction Alternatives:
+The second alternative reduction is from nullspace to power iteration
+(one of many pre-existing methods).
+The downside to this path of finding eigenpairs is that it does not seem to be able to find multiple eigenvectors in good parallel time.
+Apply Power iteration to (N^2I - ATA) where N is a bound on the 2-norm of A.
+
  
 # Conclusion:
 An n by n s-sparse matrix can have all of its eigenpairs approximately found in O(sn^2(C + b+log(nKP)) time 
 where K is the matrix condition number and P is the other condition number, 
-b is the precision you want eigenvalues with, and C is a yet to bound stability constant.
+b is the precision you want eigenvalues with, 
+and C is a yet to bound stability constant which should effect the number of iterations of the eigenvector step.
+
+## Off Hand Remarks:
+If the second method converges quickly, it might be of independent interest as a sparse solver.
 
 
