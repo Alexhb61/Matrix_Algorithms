@@ -24,46 +24,42 @@ and thus the constant C is unknown.
 
 # Eigenvalue Problem:
 ## Reduction 1:
-The first reduction is well established relationship between the characteristic polynomial
+The first reduction is well established relationship between the characteristic polynomial and eigenvalues.
+We are reducing to the low spectral norm case for efficiency reasons.
 ```
 eigenvalues(A):
-  coefficients_polynomial = characteristic_polynomial(A)
-  return zeros_finding(coefficicents_polynomial)
+  N = 2_norm_estimate(A)
+  Beta = 2 // a number bigger than 1 which effects truncation error vs convergence error
+  coefficients_polynomial = characteristic_polynomial_low_norm(A/N/Beta)
+  return zeros_finding(coefficicents_polynomial)*N*Beta
 ```
 ### Stability Remark
 If we need the eigenvalues to b bits of precision,
-then we will need the coefficients to bK bits of precision where this K is the "condition" number of the characteristic polynomial of A.
-Note: this is not necessarily the condition number of A
+then we will need the coefficients to ```(b + log(K(A) + log(K(p(A) ) ) ) ``` bits of precision 
+where this ```K(p(A))``` is the condition number of the characteristic polynomial of this modified A and
+where this ```K(A)``` is the spectral condition number of the matrix.
+Note: I do not know how these numbers are related.
 
 ## Reduction 2:
 The second reduction is well established relationship of a polynomial's evaluation points and its coefficients.
-We are choosing the sample points so that later parts of the algorithm can use an easy inversion choice.
+We are choosing the sample points which let us use the fast fourier transform, and are also numerically stable.
 ```
-characteristic_polynomial(A):
-  N = 2_norm_estimate(A)
-  Beta = 2 // a number bigger than 1 which effects truncation error vs convergence error
-  x = list_roots_of_identity(n(A)) * Beta * N
+characteristic_polynomial_low_norm(A):
+  //ASSERT 2_norm(A) < 1/2
+  x = list_roots_of_identity(n(A))
   sampled_polynomial = sampled_determinant(A,x )
-  return inverse_vandermonde(x,sampled_polynomial) // if done correctly this is a scaled fourier transform
+  return inverse_fourier(sampled_polynomial) // if done correctly this is a fourier transform
 ```
 ### Stability Remark:
-Let Beta = 2.
-If we need the coefficients to bK bits of precision, 
-then we will need the evaluation points to bKQ bits of precision
-where Q is a precision bound on the inverse vandermonde transform.
-(I suspect that using the condition number to bound this Q 
-will wildly overestimate the instability because this vandermonde matrix is a fourier transform 
-(which tends to be stable) and diagonal matrix (which tends to be stable) ) 
-The predicted stability by the condition number might be high
-because the exponent part of the different terms is prone to diverge at this step.
-
+Because the inverse fourier transform is a scaled unitary matrix, we know the condition number of this step is ``` sqrt(n)```, 
+and so if we need the answer with ```b ```bits of precision, we will need the subproblem with ```b + lg(n)/2``` bits of precision.
 ### Reduction 3:
 The problem is to solve det(xI-A) for varying x.
-We expand out the problem along the diagonal using a cheap formula for (I-e)^-1
-The formula for expanding along the diagonal comes from the block matrix formula.
+We expand out the problem along the diagonal using a cheap formula for ```(I-e)^-1 = I + e +e^2 + e^3 ...```
+The formula for expanding along the diagonal comes from the block matrix formula with 1 block being a 1 by 1.
 ```
 sampled_determinant(A,x):
-  dets = x hadmard_power n // might be better as just (NB)^n
+  dets = x hadmard_power n // might be better as just 1_n ?
   for i in 1 to n : // easily parallelized
     dets = dets hadmard_product ith_term_determinant(A,x,i) 
   return dets
@@ -72,18 +68,20 @@ ith_term_determinant(A,x,i):
   initialize z to be empty
   for j in 1 to p:
     z_j = (row i up to column i-1(A)) * product
-    product = A * product
-  y = Vandermonde_multiply(entrywise_inverse(x), z)
+    product = A * product //truncating the matrix might speed things up but doesn't effect asymptotic runtime.
+  y = Vandermonde_multiply(entrywise_inverse(x), z) //IF chosen correctly, this is a fourier transform but will need padding with a lot of zeros.
   return 1_n - (A_ii) * entrywise_inverse(x) - y
 ```
 ### Analysis
 Work is O(nlogn + nlogn + n^2logn +  + psn^2) for the four layers of heavy logic.
-Note that I as of writing don't know how to bound the p term.
 Clearly as p -> infinity, the inverse formula holds.
-Furthermore, if we need p terms for convergence,
-we will need p bits of precision in order for the lower order terms to be relevant.
-This relation is likely sufficient to show that if we only need bKQ bits of precision,
-then we can easily truncate the sum to 2bKQ terms without loss of accuracy.
+Furthermore, if we need only need b bits of precision,
+then roughly the (b+1)th term should be dropable with no loss of accuracy. (And we can drop all those following
+## Analysis:
+In total work should be bounded by O(sn^2(log(n) + log(K(A)) + log(K(p(A'))) ) ).
+#### Counterexample Warning:
+If either condition number is exponential in n ( and thus not a speedup over cubic methods),
+you will need polynomial in n bits of precision for any standard solution.
 
 # Eigenvector Problem:
 ## Reduction 1:
@@ -140,5 +138,8 @@ Thats the probability of a false negative from the normalization constant step.)
 Finding k spanning n-dimensional vectors of an eigenspace can be done in O(knsC) time when the matrix is s-sparse where C is a stability constant.
  
 # Conclusion:
-An n by n s-sparse matrix can have all of its eigenvectors approximately found in O(Csn^2) time !
-(Hopefully, later, I can bound C, and the few other magic numbers still existing in this code.)
+An n by n s-sparse matrix can have all of its eigenpairs approximately found in O(sn^2(C + b+log(nKP)) time 
+where K is the matrix condition number and P is the other condition number, 
+b is the precision you want eigenvalues with, and C is a yet to bound stability constant.
+
+
