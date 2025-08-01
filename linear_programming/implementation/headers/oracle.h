@@ -10,9 +10,9 @@ enum class WithinX {
 };
 
 struct DistanceResponse {
-    WithinX wx; 
-    VectorXd* direction;
+    WithinX wx;
+    Eigen::VectorXd* direction;
     double distanceBound;
-}
+};
 
-*DistanceResponse simpleOracle(MatrixXd* A, VectorXd* b, VectorXd* x, double r, double hoffmanConst);
+DistanceResponse* simpleOracle(MatrixXd* A, Eigen::VectorXd* b, Eigen::VectorXd* x, double r, double hoffmanConst);
