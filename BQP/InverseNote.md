@@ -6,7 +6,9 @@ This note is a simple exercise in thinking about quantum computing and cybersecu
 # Introduction:
 While thinking about computing, the author read the paper on iterated reversible computation, 
 and was surprised to not see any quantum computing results. [citation goes here]
-Thus this note is being written to rectify that omission.
+Furthermore, their core result is that there exist reversible bijections computable in P where iterating them is FP^PSPACE hard.
+Thus this note is being written to rectify that omission,
+and provide more evidence of the claim that inversion is easier than iteration.
 
 # Main idea:
 Given an easy-to-iterate bijection F and a target T we want S: F(S) = T, how can a quantum computer find S?
@@ -40,5 +42,6 @@ the preceeding reduction an attack vector on said algorithm.
 Furthermore, this reduction reveals a requirement for quantum-secure one-way-permutations: They must be hard to iterate.
 
 # Conclusion:
-This note discusses quantum computing and cryptography and so might have a very small audience, but I think it was worth typing here.
+This note discusses quantum computing and cryptography and so might have a very small audience, but the author think it was worth typing here.
+
 
