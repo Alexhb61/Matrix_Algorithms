@@ -28,7 +28,8 @@ and think of one disjoint cycle in the permutation which contains T,
 then we can imagine any mapping of S to T to be one edge in that cycle.
 1. First we can use Shor's order finding algorithm to find the size of that cycle: 
 2. starting with 0^2n T as our two registers.
-3. Hadmarding the first register to be all possible positions y.
+3. Hadmarding the first register to be all possible positions.
+Letting y represent one position inside that superposition (and interpretting y as a 2n-bit number).
 4. then applying f y times to T (uncomputing any intermediate results).
 5. Then measuring the final result of those applications.
 6. Then performing the quantum fourier transform on the first register.
