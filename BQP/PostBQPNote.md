@@ -13,14 +13,15 @@ Are FP^PSPACE and FPSPACE the same class?
 ## FP^PSPACE hardness:
 ### Iterating a function in P is hard for FP^PSPACE> [citation goes here]
 Let f be the function in question, let n be the iteration we want of f, and let x be the input.
-Let C be a circuit which has two registers and maps the state |i, y> to the super position |i,y> -|i-1,f(y)>, and maps |0,y> to |0,y>.
+Let C be a circuit which has two registers and maps the state ```|i, y>``` to the super position ```|i,y> -|i-1,f(y)>```, and maps ```|0,y>``` to ```|0,y>```.
 ### Claim : C is in PostBQP (with padding) assuming F \in BQP.
 1. Start with ```|i, y>```.
 2. With a padded 1, hadmard it to get ```|i,y,0> - |i,y,1>``` with normalization constants.
 3. If ```i``` == 0, postselect on the third register to get ```|0,y>```
-4. else: conditional on the third register, decrement ```i```.
-5.       conditional on the third register, apply f to ```y```.
-6.       hadmard the third register, and postselect on 0.(this turns it back into a padded zero).
+4. else:
+5.       conditional on the third register, decrement  ```i```.
+6.       conditional on the third register, apply f to  ```y```.
+7.       hadmard the third register, and postselect on 0.(this turns it back into a padded zero).
 This matrix construction comes from Cook in the 1980s in the definition of DET paper.
 ### Finishing:
 Now if we reverse this circuit and feed the reversal(matrix inverse) ```|n,x>``` it will produce 
