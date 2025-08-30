@@ -14,14 +14,14 @@ Given an easy-to-iterate bijection F and a target T we want S: F(S) = T, how can
 If we think of F as a permutation of the n-bit boolean strings,
 and think of one disjoint cycle in the permutation which contains T,
 then we can imagine any mapping of S to T to be one edge in that cycle.
-0. First we can use Shor's order finding algorithm to find the size of that cycle: 
-1. starting with 0^2n T as our two registers.
-2. Hadmarding the first register to be all possible positions y.
-3. then applying f y times to T (uncomputing any intermediate results).
-4. Then measuring the final result of those applications.
-5. Then performing the quantum fourier transform on the first register.
-6. This after some classical post processing will give us the period r of F's T cycle.
-7. Last We apply F r-1 times to T to get S.
+1. First we can use Shor's order finding algorithm to find the size of that cycle: 
+2. starting with 0^2n T as our two registers.
+3. Hadmarding the first register to be all possible positions y.
+4. then applying f y times to T (uncomputing any intermediate results).
+5. Then measuring the final result of those applications.
+6. Then performing the quantum fourier transform on the first register.
+7. This after some classical post processing will give us the period r of F's T cycle.
+8. Last We apply F r-1 times to T to get S.
 
 ### Key Defintion:
 A function F which can be computed in polynomial time poly(|x|)
