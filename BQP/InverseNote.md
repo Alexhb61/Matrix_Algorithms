@@ -13,6 +13,16 @@ and provide more evidence of the claim that inversion is easier than iteration.
 # Main idea:
 Given an easy-to-iterate bijection F and a target T we want S: F(S) = T, how can a quantum computer find S?
 
+### Key Term:
+Function iteration is the repeated composition of the function with itself.
+So applying f twice to x is f(f(x)). If we apply f 5 times to x, we are computing f(f(f(f(f(x))))) .
+
+### Key Defintion:
+A function F which can be computed in polynomial time poly(|x|)
+is easy-to-iterate if we can apply it n times implicitly 
+but only doing poly(|x|,|n|) work, rather than poly(|x|, n) work 
+where |m| is the bit length of the number or value m. 
+
 If we think of F as a permutation of the n-bit boolean strings,
 and think of one disjoint cycle in the permutation which contains T,
 then we can imagine any mapping of S to T to be one edge in that cycle.
@@ -24,12 +34,6 @@ then we can imagine any mapping of S to T to be one edge in that cycle.
 6. Then performing the quantum fourier transform on the first register.
 7. This after some classical post processing will give us the period r of F's T cycle.
 8. Last We apply F r-1 times to T to get S.
-
-### Key Defintion:
-A function F which can be computed in polynomial time poly(|x|)
-is easy-to-iterate if we can apply it n times implicitly 
-but only doing poly(|x|,|n|) work, rather than poly(|x|, n) work 
-where |m| is the bit length of the number or value m.
 
 # Implications:
 For some symmetric key algorithms, people have been curious if they are groups.
