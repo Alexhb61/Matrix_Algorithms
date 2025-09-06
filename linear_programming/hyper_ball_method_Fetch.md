@@ -170,3 +170,11 @@ For a well behaved system of linear inequalitites, the fetch method with one of 
 depth ```O(log(n)*D^2*log(R/r))``` and work ```O(nmD^2*log(R/r))```.
 With sufficient preconditioning, this algorithm can solve linear programming in polylogarithmic depth.
 However the sufficient preconditioning to get to a NC = P result might be infeasible.
+
+## Warning:
+Condition numbers can easily be exponential in n,
+and Hoffman constants are similarly unstable.
+This algorithm has quadratic runtime in terms of these constants.
+Even if I assume that the matrix is sparse integers,
+the best upper bound I've found so far is exponential in n (not m).
+
