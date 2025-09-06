@@ -82,6 +82,14 @@ The runtime for this orcale is O(nm) work and O(log(m) + log(n)) depth, because 
 ### Weird D:
 D is funkier, but to the best of my understanding I have described the appropriate hoffman constant.
 We want the constant D such that ||x-x_best||_2 <= D ||(Ax-b)+||_infinity .
+This D is bounded above by sqrt(n) times the infinity norm version of the hoffman constant,
+and is also bounded above by sqrt(m) times the 2-norm version of the hoffman constant.
+
+Furthermore, there seem to be a way to bound the hoffman constant 
+in terms of a maximum over all full row rank submatricies, the matrix norm of the inverse.
+Here is a link to a hoffman constant computation: https://arxiv.org/abs/1804.08418
+
+
 # Complex H(A)*||A||-distance Orcale
 This orcale is slightly more complicated because it generates a constraint to update.
 ## Orcale
