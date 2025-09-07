@@ -70,6 +70,17 @@ Furthermore the constraint enforcement matrix (I - C(CCT)+C) for each block of e
 can be simplified to (1/k(1_k)(1_kT)) or in words replace all effects on a equality block with their average.
 ## Concern:
 Did I correctly analyze that the constant D is unaffected by adding constraints?
+Note, the 2-norm version of the Hoffman constant of these now-orthogonal constraints is still poly(s), and likewise for the norm.
+
+## General separated program for Sparse linear program:
+Given a linear program with ```s``` nonzero entries per row and ```z``` nonzero entries per column,
+we can view each row as a vertex, and each pair of non-orthogonal rows as edges.
+Then this graph can be colored with ```sz`` colors.
+Each color class forms a set of orthogonal rows.
+Then we can form a separted program on ```nsz``` variables (1 variable per color and original variable)
+with equality constraints to make each block of ```sz``` variables equal
+and with all the other constraints orthogonal to one another 
+(each original constraint only interacting with its appropriate colored variables).
 
 # Convex Dual Program
 We want to solve ```Ax<= b``` given the answer is in Ball(x_0,R) and contains a ball of radius r.
