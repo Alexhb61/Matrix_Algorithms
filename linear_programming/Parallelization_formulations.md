@@ -75,7 +75,7 @@ Note, the 2-norm version of the Hoffman constant of these now-orthogonal constra
 ## General separated program for Sparse linear program:
 Given a linear program with ```s``` nonzero entries per row and ```z``` nonzero entries per column,
 we can view each row as a vertex, and each pair of non-orthogonal rows as edges.
-Then this graph can be colored with ```sz`` colors.
+Then this graph can be colored with ```sz``` colors.
 Each color class forms a set of orthogonal rows.
 Then we can form a separted program on ```nsz``` variables (1 variable per color and original variable)
 with equality constraints to make each block of ```sz``` variables equal
