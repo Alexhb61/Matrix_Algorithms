@@ -131,8 +131,8 @@ ConstrainedO(Orcale,C,d,x,r):
     // where the plus superscript is moore penrose pseudoinverse and the T is transpose.
     length = 2-norm(new_direction)
     new_direction /= length
-    delta = (new_direction dot product direction)
-    distance_bound /= delta
+    # delta = (new_direction dot product direction)
+    distance_bound /= length # delta
     if distance_bound < r :
       return (maybe, new_direction, distance_bound )
     else :
@@ -143,7 +143,7 @@ ConstrainedO(Orcale,C,d,x,r):
     new_direction = direction - (CT(CCT)^+C)direction
     length = 2-norm(new_direction)
     new_direction /= length
-    new_distance_bound = distance_bound /(direction dot product new_direction)
+    new_distance_bound = distance_bound / length # (direction dot product new_direction)
     if new_distance_bound > r :
       return (no,_,_)
     else if new_distance_bound*D < r
@@ -164,6 +164,10 @@ The geometry seems clear.
 
 ## Concern Numerical Stability:
 I can imagine a situation where the polytope defined by the inequalities is non-empty, but the polytope after intersecting with the equality constraint is empty. This could lead to a nearly zero new_direction which might then cause oscillation or other problems.
+
+## Confusion Note
+This actually increases rather than decreases the size of epsilon, because the length is less than one.
+This behaviour is weirdly nonlinear, but captures the triangle behaviour of two constraints interacting.
 
 # Conclusion:
 For a well behaved system of linear inequalitites, the fetch method with one of the orcales uses
