@@ -47,13 +47,15 @@ hmmm...
 
 # Algorithm 2:
 ## Small number subcase:
-### Small number definition:
-Let d be a number given in unary as part of the input.
-Then we call it small, because we are given it in unary not binary.
-
 Given a hidden shift problem where the abelian group's size is a small number d,
 We can solve this in polynomial time with two Quantum fourier transforms, 
 and some post-measurement analysis.
+### Small number definition:
+Let d be a number given in unary as part of the input.
+Then we call it small, because we are given it in unary not binary.
+### Small number QFT:
+We can pefrom the quantum fourier transform exactly for any small number d in poly(d) time, 
+because it is a unitary gate of d dimensions.
 ### Trial Pseudocode:
 Given f(b,x) as an orcale:
 1. Trial Start:
@@ -73,12 +75,24 @@ Given f(b,x) as an orcale:
 So now we have data of the form ```z ~ s.y``` with error centered at zero.
 ### Post Trial Analysis:
 We can analyze this data by brute force picking the ```s ``` from ```{0 ... d-1} ```which
-minimizes the error of ```Sum_over_i (z_i - s.y_i)_limit_to_d/2_-d/2 ^2```
-We only need to roughly ```O(T*d)``` arithmetic operations where ```T``` is the number of Trials.
+minimizes the error of ```Sum_over_i 1/(S-1) (Sum_over_j 1/sqrt(T) (z_ij - s.y_ij)_limit_to_d/2_-d/2 ) ^2```
+We only need to roughly ```O(STd)``` arithmetic operations where we have S sets of T trials.
+The Outer sum is over sets, and the inner sum is over trials.
 
-### MISSING PART:
-How many Trials are needed? I don't currently know.
-I would expect ```O(poly(d) )```, but be willing to be wrong.
+### Quantity of trials:
+We need enough trials to reliably distinguish between the "triangle" distribution centered at 0 mod p 
+from the uniform distribution mod p.
+The discrete uniform distribution has variance (d^2-1)/12 when projected onto floor(d/2),ceiling(-d/2),
+whereas the "triangle" distribution has variance cd^2 for some c. What is c?
+How many trials per set are needed for both of these distributions to be normally distributed?
+By Lindeberg–Lévy CLT, the inner sum will eventually converge to a normal distribution with the same variance as the starting distribution.
+However, I may need to somehow bound the distance to normal.
+How many sets are needed for the confidence interval on the variance to not include both values but rather only one?
+Once the inner sum is normal, we will need to know when the confidence intervals are unlikely to overlap.
+``` cd^2(CHI_UPPER_BOUND)/(S-1) < (d^2-1)(CHI_LOWER_BOUND)/12(S-1)``` 
+Once we have a formula for c, S should be calculable.
+#### Backup Plan
+It might be worth it to test S=T=10d  and S= 100, T= d^2?
 
 ## Product of small primes case:
 Given a hidden shift problem where the abelian group G is a cyclic group of size M
@@ -86,7 +100,9 @@ where M is a product of small primes p,
 We can roughly reduce this to the small number case by only changing some steps of the trial,
 and using the same post measurement analysis we will get the shift mod the small prime which we reduced to.
 Then we can use the chinese remainder theorem to get the shift of the full abelian group.
-
+### QFT Note:
+By a standard ring isomorphism, we can perform a quantum fourier transform over M
+where M is the product of small primes.
 ### Trial Modification:
 1. Trial Start for prime p:
 2. Setup the balanced superposition ```|b,x>``` where ```b``` is in ```{0,1}```, and ```x``` in G.
