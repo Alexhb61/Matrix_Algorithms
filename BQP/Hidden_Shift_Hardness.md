@@ -56,4 +56,4 @@ For each number this happens with probability ```(1-1/2n^2) ```
 which is a small but nontrivial fail rate which stays small after raising it to the nth power.
 
 #### concern
-The reductions barely don't connect.
+This barely doesn't work.
