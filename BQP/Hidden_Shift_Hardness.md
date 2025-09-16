@@ -57,3 +57,4 @@ which is a small but nontrivial fail rate which stays small after raising it to 
 
 #### concern
 This barely doesn't work.
+The hidden subgroup problem could be built off a 4 gap, and rounding to a known amount would work...
