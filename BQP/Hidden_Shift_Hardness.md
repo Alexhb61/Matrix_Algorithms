@@ -89,6 +89,7 @@ then g(x+z) is the same value v,
 2. if x_i is odd and z_i is one then f(x) and g(x+z) map to the same number for that portion.
 3. if x_i is even and z_i is zero then f(x) and g(x+z) map to the same number for that portion.
 4. if x_i is even and z_i is one then f(x) and g(x+z) map to the same number for that portion.
+
 When x_i is one of the top two values in the domain, then the shift sometimes doesn't exist,
 This happens with probability 2 out of 2n^2, and so the proability that this happens with every variable is low.
 
