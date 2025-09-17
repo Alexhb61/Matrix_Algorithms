@@ -1,7 +1,7 @@
 # Introduction
 This needs work.
-This rough draft claims that Hidden Shift Problem over a product of small primes with a slight failure rate
-is NP-hard under randomized polynomial reductions.
+This rough draft claims that Hidden Rough Shift Problem over a product of small primes with a slight failure rate
+is NP-hard under randomized polynomial reductions. We also attempt to show that the hiddens hift problem is NP-hard, but do not succeed.
 # Reduction 1:
 0-1 Integer Linear Equality Program with a unique solution is NP-Hard under randomized polynomial reductions.
 #### Proof: 
@@ -60,7 +60,7 @@ This barely doesn't work.
 The hidden subgroup problem could be built off a 4 gap, and rounding to a known amount might work...
 
 # Reduction 2B:
-We will reduce the unambiguious positive 1-in-3 sat problem formulated as Ax = b to the hidden unstable shift problem.
+We will reduce the unambiguious positive 1-in-3 sat problem formulated as Ax = b to the hidden rough shift problem.
 We want to identify the stable portion of the shift.
 We define the our domain to be n cyclic groups of size at least 2n^2 ( where n is the number of variables).
 Then we define f(x) to be (A(x mod 2) over integers) concatenated with x which is rounded up to even numbers.
