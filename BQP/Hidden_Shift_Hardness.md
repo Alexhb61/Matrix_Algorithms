@@ -11,8 +11,8 @@ Use Schaefer's reduction to 1-in-3 SAT which I believe is parsimonious.
 (There are messier parsimonious reductions known) 
 We can then write the 1-in-3 SAT as a 0-1 integer linear equality program,
 but every clause becomes a row in the matrix that will be set equal to 1.
-(If we need to negate variables we can substitue 1-x into the equation's row and adjust b accordingly).
-
+To handle negated variables we can double the number of variables,
+and then set  ```x_i + y_i = 1``` to make x and y be eachother's negation.
 # Reduction 2:
 0-1 Integer Linear Equality Program with a unique solution 
 can then be reduced to a special case of unique shortest vector problem with following properties:
@@ -57,4 +57,33 @@ which is a small but nontrivial fail rate which stays small after raising it to 
 
 #### concern
 This barely doesn't work.
-The hidden subgroup problem could be built off a 4 gap, and rounding to a known amount would work...
+The hidden subgroup problem could be built off a 4 gap, and rounding to a known amount might work...
+
+# Reduction 2B:
+We will reduce the unambiguious positive 1-in-3 sat problem formulated as Ax = b to the hidden shift problem.
+We define the our domain to be n cyclic groups of size at least 2n^2 ( where n is the number of variables).
+Then we define f(x) to be Ax computed over the integers concatenated with x which is rounded up to even numbers.
+Then we define g(x) to be Ax-b computed over the integers concatenated with x which is rounded down to even numbers.
+
+## The shift is the solution
+If f(x) = g(y) then
+1. y-x is the domain {0,1,2}^n because of the rounding effects
+2. Ay-Ax -b = 0 thus A(y-x) = b
+So, the shift y-x satisfies the problem we want to solve
+(especially since y-x having a 2 in it breaks the equations).
+
+## The shift is unique:
+If f(x) = f(y) =g(z) and x,y,z are distinct,
+then z-x and z-y are both solutions to the original problem
+which contradicts the unambiguous promise of the problem.
+Similarly if there are two distinct g(z)=g(w).
+
+## The shift is universal:
+If f(x) is some value v, and z obeys Az=b and z is a 0-1 vector,
+then g(x+z) is the same value v,
+because if x_i is odd and z_i is zero PROBLEM. ERROR FOUND
+if x_i is odd and z_i is one then f(x) and g(x+z) map to the same number for that portion.
+if x_i is even and z_i is zero then f(x) and g(x+z) map to the same number for that portion.
+if x_i is even and z_i is one then f(x) and g(x+z) map to the same number for that portion.
+
+
