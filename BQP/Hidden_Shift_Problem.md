@@ -95,6 +95,8 @@ Once we have a formula for c, S should be calculable.
 It might be worth it to test S=T=10d  and S= 100, T= d^2?
 
 ## Product of small primes case:
+#### Warning Strange error detected
+
 Given a hidden shift problem where the abelian group G is a cyclic group of size M
 where M is a product of small primes p,
 We can roughly reduce this to the small number case by only changing some steps of the trial,
