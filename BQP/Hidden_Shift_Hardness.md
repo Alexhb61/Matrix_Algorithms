@@ -69,7 +69,7 @@ Then we define g(x) to be (A(x mod 2)-b computed over the integers) concatenated
 ## The shift is roughly the solution
 If f(x) = g(y) then
 1. y-x is the domain {0,1,2}^n because of the rounding effects
-2. Ay'-Ax' -b = 0 thus A(y'-x') = b thus A(y-x mod 2) = b
+2. Ay'-Ax' -b = 0 thus A(y'-x') = b thus A(y-x mod 2) = b ???ERROR???
 So, the shift (y-x mod 2) satisfies the problem we want to solve.
 And the shift has 1 where the solution has a 1, and is unstable elsewhere.
 
@@ -95,6 +95,11 @@ This happens with probability 2 out of 2n^2, and so the proability that this hap
 
 ## Open Question:
 Can an algorithm for the hidden shift problem solve the rough hidden shift problem?
+
+# 2 Point Problem:
+Its worth noting that the problem reduced to just before the dihedral group in Regev's 2004 paper
+could be reduced to many different dihedral groups as long as they are sufficiently big.
+So, for at least cryptographic relevance, it matters more that the dihedral group is large.
 
 
 
