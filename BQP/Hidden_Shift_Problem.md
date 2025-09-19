@@ -123,8 +123,11 @@ We will get the number r from the linear regression rather than s_i but that can
 Then we can use the chinese remainder theorem to generate the shift for the whole group.
 This will take O(log(M)) different types of trials with O(poly(p)) trials each.
 
-## Other Cases:
-Can the other cases be reduced to this product case?
+## Hidden Shift Using Self-reducibility:
+There is a 2013 paper by Friedl et al that breaks a generalization of hidden shift over G 
+into the generalization over G/N and the generalization over N. 
+However, that has a multiplicative term, and so doesn't work for long derived series.
+
 
 # Conclusion:
 Fun ideas, and clear base cases were found.
