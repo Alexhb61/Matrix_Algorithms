@@ -161,13 +161,51 @@ With 6 states (and thus 7 "copies") we have:
 20. ```|0123454>```
 21. ```|0123455>```
 22. ```|0123456>```
-## Base States:
+### Base States:
 While I think this memoization has a better recursion relation (in terms of time and maybe space complexity),
 but it will still be exponential in the number of base cases b and in terms of the number of samples s (s^b) 
-if s samples become the one next state.
+if s samples become the one next state. If the samples aren't destructively used, then s(N+1) sample should work.
+
+### Concern:
+This memoization strategy doesn't work for the Friedl et al 2013 paper
+because that algorithm has 2 different kinds of orcale calls:
+1. 3 of which treat a copy of the input as ancillary qubits.
+2. 4 of which treat a different portion of the state as ancillary qubits.
+
+## A more Refined version: Quantum Memoization
+Given an implied partial unitary function we want to compute G which maps |a>|0> to |a>|G(a)>,
+and a recursively defined circuit F which maps t copies of a and the 0 register to t copies of a and G(a)
+where F needs k queries to G on a smaller problem so that the recursion relation if given a "COPY" operator would have depth d.
+and the base case of F needs s copies of the input.
+Then we can remove this dependency on the non-quantum "COPY" operator through the following technique: Quantum Memoization.
+We can define the circuit H which takes s(t^d) copies of input a and the 0 register to the same number of copies of a, and G(a) .
+We start by running the top layer of F on each s(t^(d-1)) bunches of t copies of the input in parallel.
+Every time we would make an 1 orcale call to G we either:
+1. group t copies of the current state, and make t sequential calls to the appropriate F.
+2. group s copies of the current state, and make s sequential calls to the base case of F.
+Clearly if
+1. the "copy" operator version would run in polynomial time
+2. the "copy" operator version would run in logarithmic depth
+3. t is a constant, and s is polynomial in the input size.
+Then
+The transformed version runs in polynomial time.
+
+### Naming note:
+I'm calling this quantum memoization, because in the same way that classical memoization trades some memory usage for much faster algorithm
+This memoization transforms an exponential time algorithm into polynomial time algorithm for the trade of using more quantum memory upfront.
+Furthermore, in classical memoization we are trying to avoid the duplication of work and
+in quantum memoization we are dodging the inability to avoid duplication of states.
 
 ## Application Hidden Shift on Z/2^n :
-To Be finished.
+We can solve the Hidden shift problem over Z mod 2^n 
+by transforming it into the appropriate problem for 2013 Friedl et al's algorithmic reduction.
+We can use the normal subgroup isomorphic to Z/2^(n/2) which corresponds to numbers with n/2 trailing zeros.
+Setting s=t=1 in theorem ??? of Friedl et al,
+We get a recursion relation of T(n) <= 7T(n/2) for runtime of n^2.81
+which becomes O(sf(n)n^3.81) after quantum memoization because the F in our program needs 2 copies and has depth lg(n)
+where s is the number of queries to solve the base case on the group C2 x C2,
+and f(n) is the work for doing group operations of appropriate size.
+Thus, we can solve this hidden shift problem in BQP time.
 
 # Conclusion:
 Fun ideas, and clear base cases were found.
