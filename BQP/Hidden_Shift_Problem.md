@@ -123,11 +123,51 @@ We will get the number r from the linear regression rather than s_i but that can
 Then we can use the chinese remainder theorem to generate the shift for the whole group.
 This will take O(log(M)) different types of trials with O(poly(p)) trials each.
 
-## Hidden Shift Using Self-reducibility:
+# Algorithm 3: Hidden Shift Using Self-reducibility:
 There is a 2013 paper by Friedl et al that breaks a generalization of hidden shift over G 
 into the generalization over G/N and the generalization over N. 
-However, that has a multiplicative term, and so doesn't work for long derived series.
+However, the recursive relation has a multiplicative term, and so doesn't work for long derived series.
 
+## My idea:
+If we instead analyze it as recursive quantum algorithm which needs 2 copies of the input (one of which is ancillary)
+and makes 2 recursive calls but doesn't pass its ancillary qubits into those calls.,
+then we can get a polynomial quantum algorithm that will use much more memory than initially analyzed,
+by using a strategy I'd call quantum memoization 
+(it records partial results in a similiar way to classical memoization)
+If we need to make N recursive function calls, 
+and the base cases use 1 state
+then we can start with N+1 initial states.
+We build up the states by repeatedly building the ith state up to the jth state.
+With 6 states (and thus 7 "copies") we have:
+1. ```|0000000>```
+2. ```|0100000>```
+3. ```|0110000>```
+4. ```|0120000>```
+5. ```|0121000>```
+6. ```|0122000>```
+7. ```|0123000>```
+8. ```|0123100>```
+9. ```|0123200>```
+10. ```|0123300>```
+11. ```|0123400>```
+12. ```|0123410>```
+13. ```|0123420>```
+14. ```|0123430>```
+15. ```|0123440>```
+16. ```|0123450>```
+17. ```|0123451>```
+18. ```|0123452>```
+19. ```|0123453>```
+20. ```|0123454>```
+21. ```|0123455>```
+22. ```|0123456>```
+## Base States:
+While I think this memoization has a better recursion relation (in terms of time and maybe space complexity),
+but it will still be exponential in the number of base cases b and in terms of the number of samples s (s^b) 
+if s samples become the one next state.
+
+## Application Hidden Shift on Z/2^n :
+To Be finished.
 
 # Conclusion:
 Fun ideas, and clear base cases were found.
