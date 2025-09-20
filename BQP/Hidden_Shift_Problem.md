@@ -178,7 +178,7 @@ and a recursively defined circuit F which maps t copies of a and the 0 register 
 where F needs k queries to G on a smaller problem so that the recursion relation if given a "COPY" operator would have depth d.
 and the base case of F needs s copies of the input.
 Then we can remove this dependency on the non-quantum "COPY" operator through the following technique: Quantum Memoization.
-We can define the circuit H which takes s(t^d) copies of input a and the 0 register to the same number of copies of a, and G(a) .
+We can define the circuit H which takes s(t^d) copies of input a and s(t^(d-1)) copies of the 0 register to the same number of copies of a, and G(a) respectively .
 We start by running the top layer of F on each s(t^(d-1)) bunches of t copies of the input in parallel.
 Every time we would make an 1 orcale call to G we either:
 1. group t copies of the current state, and make t sequential calls to the appropriate F.
