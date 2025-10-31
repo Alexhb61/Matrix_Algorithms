@@ -82,6 +82,14 @@ The runtime for this orcale is O(nm) work and O(log(m) + log(n)) depth, because 
 ### Weird D:
 D is funkier, but to the best of my understanding I have described the appropriate hoffman constant.
 We want the constant D such that ||x-x_best||_2 <= D ||(Ax-b)+||_infinity .
+This D is bounded above by sqrt(n) times the infinity norm version of the hoffman constant,
+and is also bounded above by sqrt(m) times the 2-norm version of the hoffman constant.
+
+Furthermore, there seem to be a way to bound the hoffman constant 
+in terms of a maximum over all full row rank submatricies, the matrix norm of the inverse.
+Here is a link to a hoffman constant computation: https://arxiv.org/abs/1804.08418
+
+
 # Complex H(A)*||A||-distance Orcale
 This orcale is slightly more complicated because it generates a constraint to update.
 ## Orcale
@@ -123,8 +131,8 @@ ConstrainedO(Orcale,C,d,x,r):
     // where the plus superscript is moore penrose pseudoinverse and the T is transpose.
     length = 2-norm(new_direction)
     new_direction /= length
-    delta = (new_direction dot product direction)
-    distance_bound /= delta
+    # delta = (new_direction dot product direction)
+    distance_bound /= length # delta
     if distance_bound < r :
       return (maybe, new_direction, distance_bound )
     else :
@@ -135,7 +143,7 @@ ConstrainedO(Orcale,C,d,x,r):
     new_direction = direction - (CT(CCT)^+C)direction
     length = 2-norm(new_direction)
     new_direction /= length
-    new_distance_bound = distance_bound /(direction dot product new_direction)
+    new_distance_bound = distance_bound / length # (direction dot product new_direction)
     if new_distance_bound > r :
       return (no,_,_)
     else if new_distance_bound*D < r
@@ -157,8 +165,20 @@ The geometry seems clear.
 ## Concern Numerical Stability:
 I can imagine a situation where the polytope defined by the inequalities is non-empty, but the polytope after intersecting with the equality constraint is empty. This could lead to a nearly zero new_direction which might then cause oscillation or other problems.
 
+## Confusion Note
+This actually increases rather than decreases the size of epsilon, because the length is less than one.
+This behaviour is weirdly nonlinear, but captures the triangle behaviour of two constraints interacting.
+
 # Conclusion:
 For a well behaved system of linear inequalitites, the fetch method with one of the orcales uses
 depth ```O(log(n)*D^2*log(R/r))``` and work ```O(nmD^2*log(R/r))```.
 With sufficient preconditioning, this algorithm can solve linear programming in polylogarithmic depth.
 However the sufficient preconditioning to get to a NC = P result might be infeasible.
+
+## Warning:
+Condition numbers can easily be exponential in n,
+and Hoffman constants are similarly unstable.
+This algorithm has quadratic runtime in terms of these constants.
+Even if I assume that the matrix is sparse integers,
+the best upper bound I've found so far is exponential in n (not m).
+
