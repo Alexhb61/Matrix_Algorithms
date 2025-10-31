@@ -1,4 +1,6 @@
-#include <oracle.h>;
+#include <oracle.h>
+#include <iostream>
+
 
 double only_positive(double vectorVal) {
     return std::max(0.0, vectorVal);
@@ -12,10 +14,12 @@ DistanceResponse* simpleOracle(MatrixXd* A, Eigen::VectorXd* b, Eigen::VectorXd*
         response = new DistanceResponse{ WithinX::ABSOLUTELY, NULL, -1.0 };
         return response;
     }
-    double epsilon = 0.0;
-    Eigen::VectorXd* direction;
-    direction = new Eigen::VectorXd(A->row(1) / (A->row(1)).norm()); // row i of A scaled
-    for(int i = 2; i < A->rows(); i++) { //possible to make parallel
+    //Eigen::VectorXd* direction;
+    //auto direction = new Eigen::VectorXd(A->rows()); // row i of A scaled
+	Eigen::VectorXd firstRow = Eigen::VectorXd(A->row(0));
+    auto direction = new Eigen::VectorXd(firstRow / (firstRow).norm());
+    double epsilon = error[0] / firstRow.norm();
+    for(int i = 1; i < A->rows(); i++) { //possible to make parallel
         double length = (A->row(i)).norm();
         if (error[i] / length > epsilon) {
             epsilon = error[i] / length; //element i of error vector scaled
@@ -23,14 +27,17 @@ DistanceResponse* simpleOracle(MatrixXd* A, Eigen::VectorXd* b, Eigen::VectorXd*
             direction = new Eigen::VectorXd( A->row(i) / length ); // row i of A scaled
         }
     }
-    if (r < 1 * epsilon) {
+    if (r < epsilon) {
         response = new DistanceResponse{ WithinX::NO, NULL, std::numeric_limits<double>::infinity() };
+        std::cout << "Epsilon: " << epsilon << std::endl;
         return response;
     }
     if (r > hoffmanConst * epsilon) { // TODO: use hoffmanConst to compute oraclePrecision "D". 
         response = new DistanceResponse{ WithinX::YES, NULL, hoffmanConst * epsilon };
+        std::cout << "Epsilon: " << epsilon << std::endl;
         return response;
     }
+    std::cout << "Epsilon: " << epsilon << std::endl;
     response = new DistanceResponse{ WithinX::MAYBE, direction, epsilon };
     return response;
 }
