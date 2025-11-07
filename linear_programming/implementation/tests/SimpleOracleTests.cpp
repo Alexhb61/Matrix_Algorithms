@@ -1,6 +1,6 @@
 
 #include <iostream>
-#include "oracle.h"
+#include "simple_oracle.h"
 
 // polytope (composes half-spaces), hyperball
 // we choose a half-space based on the greatest error
