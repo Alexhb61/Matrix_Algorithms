@@ -1,18 +1,11 @@
+#ifndef SIMPLE_ORACLE_H
+
 #include <Eigen/Dense>
+#include "oracle.h"
  
 using Eigen::MatrixXd;
 
-enum class WithinX {
-    NO,
-    MAYBE,
-    ABSOLUTELY,
-    YES
-};
+DistanceResponse* simpleOracle(MatrixXd A, Eigen::VectorXd b, Eigen::VectorXd x, double r, double hoffmanConst);
 
-struct DistanceResponse {
-    WithinX wx;
-    Eigen::VectorXd* direction;
-    double distanceBound;
-};
-
-DistanceResponse* simpleOracle(MatrixXd* A, Eigen::VectorXd* b, Eigen::VectorXd* x, double r, double hoffmanConst);
+#define SIMPLE_ORACLE_H
+#endif // !SIMPLE_ORACLE_H

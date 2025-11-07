@@ -6,25 +6,23 @@ double only_positive(double vectorVal) {
     return std::max(0.0, vectorVal);
 };
 
-DistanceResponse* simpleOracle(MatrixXd* A, Eigen::VectorXd* b, Eigen::VectorXd* x, double r, double hoffmanConst) {
+DistanceResponse* simpleOracle(MatrixXd A, Eigen::VectorXd b, Eigen::VectorXd x, double r, double hoffmanConst) {
     DistanceResponse* response;
     //in practice the constant can be set to infinity or doubled in size each time.
-    Eigen::VectorXd error = ( ((*A) * (*x)) - (*b)).unaryExpr(&only_positive); //easy to make parallel
+    Eigen::VectorXd error = ( (A * center) - b).unaryExpr(&only_positive); //easy to make parallel
     if (error.isZero(1e-10)){ // TODO: determine float precision
         response = new DistanceResponse{ WithinX::ABSOLUTELY, NULL, -1.0 };
         return response;
     }
-    //Eigen::VectorXd* direction;
-    //auto direction = new Eigen::VectorXd(A->rows()); // row i of A scaled
-	Eigen::VectorXd firstRow = Eigen::VectorXd(A->row(0));
+	Eigen::VectorXd firstRow = Eigen::VectorXd(A.row(0));
     auto direction = new Eigen::VectorXd(firstRow / (firstRow).norm());
     double epsilon = error[0] / firstRow.norm();
-    for(int i = 1; i < A->rows(); i++) { //possible to make parallel
-        double length = (A->row(i)).norm();
+    for(int i = 1; i < A.rows(); i++) { //possible to make parallel
+        double length = (A.row(i)).norm();
         if (error[i] / length > epsilon) {
             epsilon = error[i] / length; //element i of error vector scaled
             if (direction != NULL) delete direction;
-            direction = new Eigen::VectorXd( A->row(i) / length ); // row i of A scaled
+            direction = new Eigen::VectorXd( A.row(i) / length ); // row i of A scaled
         }
     }
     if (r < epsilon) {

@@ -20,7 +20,7 @@ void trivialRandomizedVals1dCase() {
 	double r = 10.0;
 	double hoffman = 9;
 
-	DistanceResponse* response = simpleOracle(&A, &b, &x, r, hoffman);
+	DistanceResponse* response = simpleOracle(A, b, x, r, hoffman);
 	std::cout << "Values in A:\n" << A << std::endl;
 	std::cout << "WithinX: " << static_cast<int>(response->wx);
 	std::cout << ", distance bound: " << response->distanceBound << std::endl;
@@ -48,7 +48,7 @@ void trivialNonRandomVals2dCase() {
 	double r = 10.0;
 	double hoffman = 9;
 
-	DistanceResponse* response = simpleOracle(&A, &b, &x, r, hoffman);
+	DistanceResponse* response = simpleOracle(A, b, x, r, hoffman);
 	std::cout << "Values in A:\n" << A << std::endl;
 	std::cout << "WithinX: " << static_cast<int>(response->wx);
 	std::cout << ", distance bound: " << response->distanceBound << std::endl;
