@@ -103,25 +103,31 @@ So it is less sensitive?
 We will look for bits which give us the maximum amount of information. And combine them in a simple way.
 ## Procedure:
 1. Assume k patients are sick out of N patient group.
-2. Let f be the false positive rate of the procedure (assuming the tests are extremely accurate).
+2. Let f = k/N be the false positive rate of the first step.
 3. If we randomly pick N.ln(2)/k sized pools such that each patient is in at least lg(1/f) pools, then we will pick on order of O(k.lg(1/f) ) pools.
-4. If a patient is only in positive pools they are considered positive by the procedure.
-   
-Note: we only need to choose the relation between pools and patients for each N and k once.
-Then we can reuse that set and randomize the placement of patients
+4. If a patient is only in positive pools, they are considered positive by the first step.
+5. Then we test every patient who is positive by the first step directly, and get the patients who are "truly positive". There will be O(k) patients who have to go through this second step. (The k true positives, and the k false positives of the first step.
+Since each patient is in at least lg(1/f) pools, and each pool has probability 1/2 of being positive,
+the probability that a not-sick patient will return a false positive (given perfect tests) is (1/2)^lg(1/f) = 2^lg(f) = f )
+
+#### Question:
+Do we need to choose the pools members through random selection every time we run the test?
+or only on the first run?
 ## Efficiency of tests
 Each test is Positive with probability about 1/2 for N >> k >> 1 
 Proof: The probability that all k sick patients are in a given pool is: (1-ln(2)/k)^k Which is roughly 1/2 by a bound on the number e.
 A tighter analysis would pick pool size n such that the probability a random process without replacement picks at least 1 sick patient is 1/2.
-So the tests are maximally efficient.
+So the tests are maximally efficient. 
+In total we do O(k*log(N/k) ) tests which is optimal (see next section).
 ## Critical Path:
-The Tests are all done in parallel in the best case, so the critical path is 1 test.
+The Tests are all done in parallel in the best case, so the critical path is 2 tests.
 ## Caveat:
 Implementing random tests is likely more prone to human error than other pooling methods,
 because it won't have a nice pattern to double check and habituate the work.
-## FPR:
-Since each patient is in at least lg(1/f) pools, and each pool has probability 1/2 of being positive,
-the probability that a not-sick patient will return a false positive (given perfect tests) is (1/2)^lg(1/f) = 2^lg(f) = f .
+## Sensitivity and specificity:
+P(positive_procedure | not_sick) <= P(positive_test| not sick) because we test a second time.
+P(negative_procedure | sick) <= P(negative_test | sick)^(O(1)+O(lg(N/k)) ) 
+i.e. the probability of no false negative in the path towards concluding
 ## Assumption Crashout:
 When there are fewer patients sick, I believe this process will be inefficient but still accurate.
 When there are more patients sick, I believe this process may become inaccurate.
