@@ -104,8 +104,9 @@ We will look for bits which give us the maximum amount of information. And combi
 ## Procedure:
 1. Assume k patients are sick out of N patient group.
 2. Let f be the false positive rate of the procedure (assuming the tests are extremely accurate).
-3. If we randomly pick N.ln(2)/k sized pools such that each patient is in at least lg(1/f) pools, then we will pick on order of O(k.lg(1/f) ) pools. 
+3. If we randomly pick N.ln(2)/k sized pools such that each patient is in at least lg(1/f) pools, then we will pick on order of O(k.lg(1/f) ) pools.
 4. If a patient is only in positive pools they are considered positive by the procedure.
+   
 Note: we only need to choose the relation between pools and patients for each N and k once.
 Then we can reuse that set and randomize the placement of patients
 ## Efficiency of tests
