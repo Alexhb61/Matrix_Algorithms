@@ -34,7 +34,7 @@ P( - procedure | no disease && one sick patient) ~~ 1 - l / N
 ```
 
 # Idea 2: Simple Parallel quartering
-
+#### warning requires iteration
 ## Procedure:
 Let there be n = 4^L patients
 Let there be less than 4 patients with the condition being tested for.
@@ -68,7 +68,7 @@ P(- procedure | no condition) >= .7625 worst case for 3 conditioned patients: (2
 P(- procedure | no condition) >= .9686 if geometric average number of conditioned groups along each axis is 2. This is also the worst case for 2 conditioned patients. (32 positive cases)
 
 # Generalizing Idea: Parallel Hypercube Search
-
+#### warning requires iteration
 ## Procedure:
 0. Let there be <k/2 conditioned patients in N = k^l patient population.
 1. Randomly and Uniquely assign patients numbers between 0 and N-1
@@ -99,7 +99,32 @@ So it is less sensitive?
 #### P(+|yes) = .998 ; P(-|NO) = .998
 #### P(+ procedure | conditioned && 5 conditioned patients in population) = .994
 #### P(- procedure | no condition && 5 conditioned patients in population) = 7/8*.998 = .873 
-
+# Generalizing: Parallel Random tests
+We will look for bits which give us the maximum amount of information. And combine them in a simple way.
+## Procedure:
+1. Assume k patients are sick out of N patient group.
+2. Let f be the false positive rate of the procedure (assuming the tests are extremely accurate).
+3. If we randomly pick N.ln(2)/k sized pools such that each patient is in at least lg(1/f) pools, then we will pick on order of O(k.lg(1/f) ) pools. 
+4. If a patient is only in positive pools they are considered positive by the procedure.
+Note: we only need to choose the relation between pools and patients for each N and k once.
+Then we can reuse that set and randomize the placement of patients
+## Efficiency of tests
+Each test is Positive with probability about 1/2 for N >> k >> 1 
+Proof: The probability that all k sick patients are in a given pool is: (1-ln(2)/k)^k Which is roughly 1/2 by a bound on the number e.
+A tighter analysis would pick pool size n such that the probability a random process without replacement picks at least 1 sick patient is 1/2.
+So the tests are maximally efficient.
+## Critical Path:
+The Tests are all done in parallel in the best case, so the critical path is 1 test.
+## Caveat:
+Implementing random tests is likely more prone to human error than other pooling methods,
+because it won't have a nice pattern to double check and habituate the work.
+## FPR:
+Since each patient is in at least lg(1/f) pools, and each pool has probability 1/2 of being positive,
+the probability that a not-sick patient will return a false positive (given perfect tests) is (1/2)^lg(1/f) = 2^lg(f) = f .
+## Assumption Crashout:
+When there are fewer patients sick, I believe this process will be inefficient but still accurate.
+When there are more patients sick, I believe this process may become inaccurate.
+Future modeling will make these concerns more precise.
 # Lower Bound on Unstructured Pooling of Boolean Test
 Inspired by well known bounds on sparse data compression,
 we can do the following lower bound analysis.
