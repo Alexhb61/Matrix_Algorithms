@@ -18,9 +18,13 @@ which identify the best sequence of stage sizes WHEN we know the prevalence of d
 Let P be the maximum pool size we are willing to consider.
 Let Cost be a table indexed by prevalence up to some precision epsilon.
 (Also keep track of next prevalence and best pool size)
+
 Positivity_Rate(Prevalence, Pool_Size) :=  1 - (1- Prevalence)^Pool_size
+
 Prevalence_Next(Prevalence, Pool_Size) := Prevalance/Positivity_Rate(Prevalence,Pool_size) //P(+|sick) is approximately 1.
+
 Cost(Prevalence) := min(1, min_{p from 2 to P} ( 1/p + Cost(Prevalence_Next(Prevalence,p) )*Positivity_Rate(Prevalence,p) ) )
+
 By noting that the prevalence is at most 1, we notice that the subproblem graph is a DAG, and 
 we can apply dynamic programming on these equations starting from the prevalence closest to 1 and going down.
 This will take time proportional to O(Max_Pool_Size/epsilon)
