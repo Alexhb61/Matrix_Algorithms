@@ -28,10 +28,12 @@ Prevalence_Next(Prevalence, Pool_Size) := IF (Positivity_Rate(Prevalence,Pool_si
 Cost(Prevalence, MWT) := IF Prevalence >= Sensitivity THEN 0 
 ELIF MWT == 0 THEN 1 ELSE 
 let wait = 0, p = 2, best_so_far = 1 
-while( wait >= 0 and p < P ) {
+while( p < P ) {
 let wait = (MWT-(p-1)/2)/p rounded up to nearest integer multiple of beta.
+if wait < 0 : break
 best_so_far = min(best_so_far, 1/p + Cost(Prevalence_Next(Prevalence,p),wait )*Positivity_Rate(Prevalence,p) )
-}
+p++
+} return best_so_far
 ```
 By noting that prevalence increases under the assumption that prevalence < sensitivity,
  we notice that the subproblem graph is a DAG, and 
