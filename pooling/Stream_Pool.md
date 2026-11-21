@@ -16,20 +16,43 @@ The upside to this simplifying self-reduction is that allows us to write recursi
 which identify the best sequence of stage sizes WHEN we know the prevalence of disease for a population.
 # Dynamic Programming to solve the recursive equations:
 Let P be the maximum pool size we are willing to consider.
-Let Cost be a table indexed by prevalence up to some precision epsilon.
+Let Sensitivity be the probability that a test marks someone positive given the pool contains someone sick with the condition in question.
+Let Specificity be the probability that a test marks someone negative given the pool is all healthy relative to the condition in question.
+Let Cost be a table indexed by prevalence up to some precision epsilon, and indexed by mean_weight_time up to some precision beta.
 (Also keep track of next prevalence and best pool size)
-
-Positivity_Rate(Prevalence, Pool_Size) :=  1 - (1- Prevalence)^Pool_size
-
-Prevalence_Next(Prevalence, Pool_Size) := Prevalance/Positivity_Rate(Prevalence,Pool_size) //P(+|sick) is approximately 1.
-
-Cost(Prevalence) := min(1, min_{p from 2 to P} ( 1/p + Cost(Prevalence_Next(Prevalence,p) )*Positivity_Rate(Prevalence,p) ) )
-
-By noting that the prevalence is at most 1, we notice that the subproblem graph is a DAG, and 
-we can apply dynamic programming on these equations starting from the prevalence closest to 1 and going down.
-This will take time proportional to O(Max_Pool_Size/epsilon)
+```
+All_healthy_Probability(Prevalence,Pool_size) := (1- Prevalence)^Pool_size
+Positivity_Rate(Prevalence, Pool_Size) :=  (1 -All_healthy_probability(Prevalence,Pool_size) ).sensitivity + specificity.All_healthy_probability(Prevalence,Pool_size) 
+Prevalence_Next(Prevalence, Pool_Size) := IF (Positivity_Rate(Prevalence,Pool_size) > Sensitivity) THEN throw ERROR ELSE sensitivity*Prevalance/Positivity_Rate(Prevalence,Pool_size) 
+//NOTE: MWT_current = (Pool_size-1)/2 + Pool_size*MWT_Previous 
+Cost(Prevalence, MWT) := IF Prevalence >= Sensitivity THEN 0 
+ELIF MWT == 0 THEN 1 ELSE 
+let wait = 0, p = 2, best_so_far = 1 
+while( wait >= 0 and p < P ) {
+let wait = (MWT-(p-1)/2)/p rounded up to nearest integer multiple of beta.
+best_so_far = min(best_so_far, 1/p + Cost(Prevalence_Next(Prevalence,p),wait )*Positivity_Rate(Prevalence,p) )
+}
+```
+By noting that prevalence increases under the assumption that prevalence < sensitivity,
+ we notice that the subproblem graph is a DAG, and 
+we can apply dynamic programming on these equations starting from the prevalence just less than the sensitivity and going down.
+This will take time proportional to O(Max_Pool_size*Max_Wait_time/Beta/epsilon)
+The units for wait time are patients.
 Further optimizations might be feasible.
-# Caveats: Costs, wait times, Sensitivity and Specificity
-Since this is a meta-protocol, I'd have to actually run it and reading the results for the relevant prevalence
-before estimating costs, wait times, and sensitivity. 
-For specificity, we don't diagnosis a patient as having the disease until we reach 1 patient test, so it is preserved.
+# Caveats: Other_Costs, FNR, sample limitations
+Since this is a meta-protocol, I'd have to actually run it and read the results for the relevant prevalence and wait time
+before estimating other costs, and FNR.
+This meta-protocol also requires knowing the sensitivity and specificity of the test it is going to be built around,
+but we could brute force the possible sensitivities and specificities up to some limited precision.
+We know that the final false positive rate will be greater than the sensitivity, but we don't know the false negative rate.
+For sample stability, we might need to set a maximum wait time or maximum number of stages,
+and this scheme doesn't address those limitations.
+# Conclusion
+Under the core assumption of streaming model with independent random variables of patients,
+this scheme generates the pareto frontier of the tradeoff between mean wait time and cost per patient 
+at a given disease prevalence with a given test specificity and sensitivity. 
+Future work will look into:
+Does this result in notable savings for any major disease?
+Can these protocols be simplified at all?
+How to address the sample limitations of this scheme?
+
