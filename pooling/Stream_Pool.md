@@ -42,18 +42,26 @@ we can apply dynamic programming on these equations starting from the prevalence
 This will take time proportional to O(Max_Pool_size*Max_Wait_time/Beta/epsilon)
 The units for wait time are patients.
 Further optimizations might be feasible.
-# Caveats: Other_Costs, FNR, sample limitations
+## Changing the FPR:
+By default the above construction sets the `1-FPR == Sensitivity` which is the maximum setting.
+An equally valid choice would be to set the FPR so that the whole system was equivalent to 1 test.
+`1-FPR := Prevelance_Starting*Sensitivity/(Prevelance_Starting*sensitivity + (1-Prevalence_Starting)*(1-specificity) ) `
+However this nuance adds a third parameter to iterate over or set for a particular problem.
+You can change this by swapping out `Prevalence > Sensitivity` with `Prevalence > 1 -FPR`
+# Caveats: Other Costs, FNR, sample limitations, Rounding
 Since this is a meta-protocol, I'd have to actually run it and read the results for the relevant prevalence and wait time
 before estimating other costs, and FNR.
 This meta-protocol also requires knowing the sensitivity and specificity of the test it is going to be built around,
 but we could brute force the possible sensitivities and specificities up to some limited precision.
-We know that the final false positive rate will be greater than the sensitivity, but we don't know the false negative rate.
+We have an upper bound on the false positive rate through this design, but we don't know the false negative rate.
 For sample stability, we might need to set a maximum wait time or maximum number of stages,
 and this scheme doesn't address those limitations.
+Finally, this meta-protocol discretizes a continuous space in order to solve the problem efficiently. 
+Does that discretization introduce suboptimalities? How would you tell if it did?
 # Conclusion
 Under the core assumption of streaming model with independent random variables of patients,
-this scheme generates the pareto frontier of the tradeoff between mean wait time and cost per patient 
-at a given disease prevalence with a given test specificity and sensitivity. 
+this scheme generates the optimal pareto frontier of the tradeoff between mean wait time and cost per patient 
+at a given disease prevalence with a given test specificity, given test sensitivity, and target false positive rate.
 Future work will look into:
 Does this result in notable savings for any major disease?
 Can these protocols be simplified at all?
