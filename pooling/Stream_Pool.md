@@ -22,7 +22,8 @@ Let Cost be a table indexed by prevalence up to some precision epsilon, and inde
 (Also keep track of next prevalence and best pool size)
 ```
 All_healthy_Probability(Prevalence,Pool_size) := (1- Prevalence)^Pool_size
-Positivity_Rate(Prevalence, Pool_Size) :=  (1 -All_healthy_probability(Prevalence,Pool_size) ).sensitivity + specificity.All_healthy_probability(Prevalence,Pool_size) 
+Positivity_Rate(Prevalence, Pool_Size) :=  (1 -All_healthy_probability(Prevalence,Pool_size) )*sensitivity +
+(1-specificity)*All_healthy_probability(Prevalence,Pool_size) 
 Prevalence_Next(Prevalence, Pool_Size) := IF (Positivity_Rate(Prevalence,Pool_size) > Sensitivity) THEN throw ERROR ELSE sensitivity*Prevalance/Positivity_Rate(Prevalence,Pool_size) 
 //NOTE: MWT_current = (Pool_size-1)/2 + Pool_size*MWT_Previous 
 Cost(Prevalence, MWT) := IF Prevalence >= Sensitivity THEN 0 
